@@ -7,11 +7,11 @@
 <!-- TAB BUTTONS -->
 <div class="flex gap-3 mb-6">
     <button id="btn-ringkasan" onclick="showTab('ringkasan')"
-        class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm font-medium transition-colors">
+        class="flex items-center px-4 py-2 bg-brand-500 text-white rounded-lg shadow-sm font-medium transition-colors">
         <i class="fas fa-chart-pie mr-2"></i> Ringkasan Attrition
     </button>
     <button id="btn-looker" onclick="showTab('looker')"
-        class="flex items-center px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium shadow-sm">
+        class="flex items-center px-4 py-2 bg-white text-earth-500 border border-sand-500 rounded-lg hover:bg-sand-100 transition-colors font-medium shadow-sm">
         <i class="fas fa-chart-bar mr-2"></i> Data Google Looker
     </button>
 </div>
@@ -22,22 +22,22 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Card 1 -->
         <div
-            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+            class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Total Karyawan</p>
-                <h3 class="text-2xl font-bold text-slate-800" id="kpi-total">-</h3>
+                <p class="text-sm font-medium text-earth-500 mb-1">Total Karyawan</p>
+                <h3 class="text-2xl font-bold text-earth-800" id="kpi-total">-</h3>
             </div>
-            <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center">
-                <i class="fas fa-users text-indigo-600 text-xl"></i>
+            <div class="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-users text-brand-500 text-xl"></i>
             </div>
         </div>
 
         <!-- Card 2 -->
         <div
-            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+            class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Karyawan Keluar</p>
-                <h3 class="text-2xl font-bold text-slate-800" id="kpi-keluar">-</h3>
+                <p class="text-sm font-medium text-earth-500 mb-1">Karyawan Keluar</p>
+                <h3 class="text-2xl font-bold text-earth-800" id="kpi-keluar">-</h3>
             </div>
             <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center">
                 <i class="fas fa-user-minus text-rose-500 text-xl"></i>
@@ -46,11 +46,11 @@
 
         <!-- Card 3 -->
         <div
-            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow relative overflow-hidden">
+            class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 flex items-center justify-between hover:shadow-md transition-shadow relative overflow-hidden">
             <div class="z-10 relative">
-                <p class="text-sm font-medium text-slate-500 mb-1">Attrition Rate</p>
+                <p class="text-sm font-medium text-earth-500 mb-1">Attrition Rate</p>
                 <div class="flex items-end gap-3">
-                    <h3 class="text-2xl font-bold text-slate-800" id="kpi-rate">-</h3>
+                    <h3 class="text-2xl font-bold text-earth-800" id="kpi-rate">-</h3>
                     <span id="badge-rate"
                         class="hidden px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-700 border border-rose-200 mb-1">Kritis</span>
                 </div>
@@ -62,9 +62,9 @@
 
         <!-- Card 4 -->
         <div
-            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+            class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Status Sistem</p>
+                <p class="text-sm font-medium text-earth-500 mb-1">Status Sistem</p>
                 <div class="flex items-center gap-2 mt-1">
                     <span class="relative flex h-3 w-3">
                         <span
@@ -83,12 +83,12 @@
     <!-- Strategic Context Panel -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Latar Belakang -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
-                <i class="fas fa-file-alt text-indigo-500 mr-2"></i> Latar Belakang & Fokus
+        <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6">
+            <h2 class="text-lg font-bold text-earth-800 mb-4 flex items-center">
+                <i class="fas fa-file-alt text-brand-500 mr-2"></i> Latar Belakang & Fokus
             </h2>
-            <p id="ctx-latar" class="text-slate-600 text-sm leading-relaxed mb-4">-</p>
-            <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+            <p id="ctx-latar" class="text-earth-500 text-sm leading-relaxed mb-4">-</p>
+            <div class="bg-brand-100 rounded-lg p-4 border border-brand-100">
                 <p class="text-sm text-indigo-800 font-medium flex items-start">
                     <i class="fas fa-lightbulb text-amber-500 mt-1 mr-2 text-lg"></i>
                     <span id="ctx-fokus">-</span>
@@ -97,50 +97,50 @@
         </div>
 
         <!-- Arsitektur AI -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
-                <i class="fas fa-project-diagram text-indigo-500 mr-2"></i> Arsitektur Solusi AI
+        <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6">
+            <h2 class="text-lg font-bold text-earth-800 mb-4 flex items-center">
+                <i class="fas fa-project-diagram text-brand-500 mr-2"></i> Arsitektur Solusi AI
             </h2>
             <div
-                class="space-y-4 relative before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+                class="space-y-4 relative before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-sand-500 before:to-transparent">
                 <!-- Item 1 -->
                 <div class="relative flex items-start">
                     <div
-                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        class="bg-white w-8 h-8 rounded-full border-2 border-brand-500 flex items-center justify-center text-brand-500 text-xs font-bold shrink-0 z-10 shadow-sm">
                         1</div>
                     <div class="ml-4 flex-1">
-                        <h4 class="text-sm font-bold text-slate-800">Input Layer</h4>
-                        <p class="text-xs text-slate-500 mt-1" id="ai-input">-</p>
+                        <h4 class="text-sm font-bold text-earth-800">Input Layer</h4>
+                        <p class="text-xs text-earth-500 mt-1" id="ai-input">-</p>
                     </div>
                 </div>
                 <!-- Item 2 -->
                 <div class="relative flex items-start">
                     <div
-                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        class="bg-white w-8 h-8 rounded-full border-2 border-brand-500 flex items-center justify-center text-brand-500 text-xs font-bold shrink-0 z-10 shadow-sm">
                         2</div>
                     <div class="ml-4 flex-1">
-                        <h4 class="text-sm font-bold text-slate-800">Preprocessing Layer</h4>
-                        <p class="text-xs text-slate-500 mt-1" id="ai-pre">-</p>
+                        <h4 class="text-sm font-bold text-earth-800">Preprocessing Layer</h4>
+                        <p class="text-xs text-earth-500 mt-1" id="ai-pre">-</p>
                     </div>
                 </div>
                 <!-- Item 3 -->
                 <div class="relative flex items-start">
                     <div
-                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        class="bg-white w-8 h-8 rounded-full border-2 border-brand-500 flex items-center justify-center text-brand-500 text-xs font-bold shrink-0 z-10 shadow-sm">
                         3</div>
                     <div class="ml-4 flex-1">
-                        <h4 class="text-sm font-bold text-slate-800">Modeling Layer</h4>
-                        <p class="text-xs text-slate-500 mt-1" id="ai-model">-</p>
+                        <h4 class="text-sm font-bold text-earth-800">Modeling Layer</h4>
+                        <p class="text-xs text-earth-500 mt-1" id="ai-model">-</p>
                     </div>
                 </div>
                 <!-- Item 4 -->
                 <div class="relative flex items-start">
                     <div
-                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        class="bg-white w-8 h-8 rounded-full border-2 border-brand-500 flex items-center justify-center text-brand-500 text-xs font-bold shrink-0 z-10 shadow-sm">
                         4</div>
                     <div class="ml-4 flex-1">
-                        <h4 class="text-sm font-bold text-slate-800">Output Layer</h4>
-                        <p class="text-xs text-slate-500 mt-1" id="ai-output">-</p>
+                        <h4 class="text-sm font-bold text-earth-800">Output Layer</h4>
+                        <p class="text-xs text-earth-500 mt-1" id="ai-output">-</p>
                     </div>
                 </div>
             </div>
@@ -150,24 +150,24 @@
     <!-- Charts Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Chart 1: Bar -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-2">
-            <h2 class="text-base font-bold text-slate-800 mb-4">Distribusi Attrition Berdasarkan Departemen</h2>
+        <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 lg:col-span-2">
+            <h2 class="text-base font-bold text-earth-800 mb-4">Distribusi Attrition Berdasarkan Departemen</h2>
             <div class="h-64 w-full relative">
                 <canvas id="chartDept"></canvas>
             </div>
         </div>
 
         <!-- Chart 2: Donut -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-            <h2 class="text-base font-bold text-slate-800 mb-4">Rasio Attrition: Pengaruh Lembur</h2>
+        <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6">
+            <h2 class="text-base font-bold text-earth-800 mb-4">Rasio Attrition: Pengaruh Lembur</h2>
             <div class="h-64 w-full relative flex justify-center">
                 <canvas id="chartOvertime"></canvas>
             </div>
         </div>
 
         <!-- Chart 3: Stacked Bar / Line -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-3">
-            <h2 class="text-base font-bold text-slate-800 mb-4">Tren Karyawan Berdasarkan Kelompok Umur</h2>
+        <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 lg:col-span-3">
+            <h2 class="text-base font-bold text-earth-800 mb-4">Tren Karyawan Berdasarkan Kelompok Umur</h2>
             <div class="h-72 w-full relative">
                 <canvas id="chartAge"></canvas>
             </div>
@@ -177,21 +177,21 @@
 
 <!-- TAB 2: GOOGLE LOOKER STUDIO -->
 <div id="tab-looker" class="hidden space-y-6">
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+    <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6">
         <div class="flex justify-between items-center mb-4">
             <div>
-                <h2 class="text-lg font-bold text-slate-800"><i class="fas fa-chart-bar text-indigo-500 mr-2"></i>
+                <h2 class="text-lg font-bold text-earth-800"><i class="fas fa-chart-bar text-brand-500 mr-2"></i>
                     Eksplorasi Data Studio</h2>
-                <p class="text-sm text-slate-500 mt-1">Gunakan kontrol filter yang tersedia di dalam dashboard untuk
+                <p class="text-sm text-earth-500 mt-1">Gunakan kontrol filter yang tersedia di dalam dashboard untuk
                     deep-dive tren demografis.</p>
             </div>
             <a href="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
                 target="_blank"
-                class="px-4 py-2 bg-indigo-50 text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200 text-sm">
+                class="px-4 py-2 bg-brand-100 text-brand-700 font-medium rounded-lg hover:bg-brand-100 transition-colors border border-indigo-200 text-sm">
                 <i class="fas fa-external-link-alt mr-2"></i> Buka Layar Penuh
             </a>
         </div>
-        <div class="w-full bg-slate-50 rounded-lg border border-slate-200 overflow-hidden" style="height: 600px;">
+        <div class="w-full bg-sand-100 rounded-lg border border-sand-500 overflow-hidden" style="height: 600px;">
             <iframe class="w-full h-full"
                 src="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
                 allowfullscreen
@@ -211,15 +211,15 @@
 
         if (tab === 'ringkasan') {
             // Active styles
-            btnRingkasan.className = "flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm font-medium transition-colors";
-            btnLooker.className = "flex items-center px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium shadow-sm";
+            btnRingkasan.className = "flex items-center px-4 py-2 bg-brand-500 text-white rounded-lg shadow-sm font-medium transition-colors";
+            btnLooker.className = "flex items-center px-4 py-2 bg-white text-earth-500 border border-sand-500 rounded-lg hover:bg-sand-100 transition-colors font-medium shadow-sm";
             tabRingkasan.classList.remove('hidden');
             tabRingkasan.classList.add('block');
             tabLooker.classList.remove('block');
             tabLooker.classList.add('hidden');
         } else {
-            btnLooker.className = "flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm font-medium transition-colors";
-            btnRingkasan.className = "flex items-center px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium shadow-sm";
+            btnLooker.className = "flex items-center px-4 py-2 bg-brand-500 text-white rounded-lg shadow-sm font-medium transition-colors";
+            btnRingkasan.className = "flex items-center px-4 py-2 bg-white text-earth-500 border border-sand-500 rounded-lg hover:bg-sand-100 transition-colors font-medium shadow-sm";
             tabLooker.classList.remove('hidden');
             tabLooker.classList.add('block');
             tabRingkasan.classList.remove('block');
@@ -271,7 +271,7 @@
     function renderCharts(gfx) {
         // Shared Options
         Chart.defaults.font.family = "'Inter', sans-serif";
-        Chart.defaults.color = '#64748b'; // slate-500
+        Chart.defaults.color = '#64748b'; // earth-500
 
         // 1. Bar Chart: Departemen (Bertahan vs Keluar)
         const ctxDept = document.getElementById('chartDept').getContext('2d');
@@ -357,7 +357,7 @@
                     {
                         label: 'Bertahan',
                         data: ageBertahan,
-                        backgroundColor: '#6366f1', // indigo-500
+                        backgroundColor: '#6366f1', // brand-500
                         stack: 'Stack 0',
                     }
                 ]

@@ -13,8 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all files ke container 
 COPY . . 
 
-# Expose port untuk Railway 
-EXPOSE 8000 
+# Expose port untuk Hugging Face Spaces 
+EXPOSE 7860 
 
 # Run Flask 
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app"]

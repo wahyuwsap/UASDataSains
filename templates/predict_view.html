@@ -7,159 +7,156 @@
 <div class="flex flex-col xl:flex-row gap-6 items-start">
     
     <!-- Form Section -->
-    <div class="w-full xl:w-2/3 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <div class="mb-6 pb-4 border-b border-slate-100">
-            <h2 class="text-xl font-bold text-slate-800 flex items-center">
-                <i class="fas fa-sliders-h text-indigo-500 mr-2"></i> Parameter Profil Karyawan
+    <div class="w-full xl:w-2/3 bg-white rounded-xl shadow-sm border border-sand-500 p-6">
+        <div class="mb-6 pb-4 border-b border-sand-200">
+            <h2 class="text-xl font-bold text-earth-800 flex items-center">
+                <i class="fas fa-sliders-h text-brand-500 mr-2"></i> Parameter Profil Karyawan
             </h2>
-            <p class="text-sm text-slate-500 mt-1">Lengkapi parameter di bawah ini untuk mensimulasikan probabilitas attrition menggunakan model Random Forest.</p>
+            <p class="text-sm text-earth-500 mt-1">Lengkapi parameter di bawah ini untuk mensimulasikan probabilitas attrition menggunakan model Random Forest.</p>
         </div>
 
         <form method="POST" action="/predict" class="space-y-8">
             
             <!-- SECTION 1: Demografi -->
             <div>
-                <h3 class="text-sm font-bold text-indigo-600 uppercase tracking-wider mb-4 border-l-4 border-indigo-500 pl-2">Data Demografi</h3>
+                <h3 class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">Data Demografi</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Umur (Tahun)</label>
-                        <input type="number" name="age" value="30" min="18" max="70" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Umur (Tahun)</label>
+                        <input type="number" name="age" value="{{ form_data.age }}" min="18" max="70" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Gender</label>
-                        <select name="gender" class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="Male">Laki-laki</option>
-                            <option value="Female">Perempuan</option>
-                            <option value="Other">Lainnya</option>
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Gender</label>
+                        <select name="gender" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="Male" {% if form_data.gender == "Male" %}selected{% endif %}>Laki-laki</option>
+                            <option value="Female" {% if form_data.gender == "Female" %}selected{% endif %}>Perempuan</option>
+                            <option value="Other" {% if form_data.gender == "Other" %}selected{% endif %}>Lainnya</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Pendidikan</label>
-                        <select name="education" class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="High School">SMA/Sederajat</option>
-                            <option value="Bachelor" selected>S1 (Bachelor)</option>
-                            <option value="Master">S2 (Master)</option>
-                            <option value="PhD">S3 (PhD)</option>
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Pendidikan</label>
+                        <select name="education" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="High School" {% if form_data.education == "High School" %}selected{% endif %}>SMA/Sederajat</option>
+                            <option value="Bachelor" {% if form_data.education == "Bachelor" %}selected{% endif %}>S1 (Bachelor)</option>
+                            <option value="Master" {% if form_data.education == "Master" %}selected{% endif %}>S2 (Master)</option>
+                            <option value="PhD" {% if form_data.education == "PhD" %}selected{% endif %}>S3 (PhD)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jarak dari Rumah (Km)</label>
-                        <input type="number" name="distance_from_home_km" value="10" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Jarak dari Rumah (Km)</label>
+                        <input type="number" name="distance_from_home_km" value="{{ form_data.distance_from_home_km }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 2: Beban Kerja & Peran -->
             <div>
-                <h3 class="text-sm font-bold text-indigo-600 uppercase tracking-wider mb-4 border-l-4 border-indigo-500 pl-2">Beban Kerja & Peran</h3>
+                <h3 class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">Beban Kerja & Peran</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Departemen</label>
-                        <select name="department" class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="Engineering" selected>Engineering</option>
-                            <option value="Sales">Sales</option>
-                            <option value="R&D">R&D</option>
-                            <option value="HR">HR</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Operations">Operations</option>
-                            <option value="Legal">Legal</option>
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Departemen</label>
+                        <select name="department" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="Engineering" {% if form_data.department == "Engineering" %}selected{% endif %}>Engineering</option>
+                            <option value="Sales" {% if form_data.department == "Sales" %}selected{% endif %}>Sales</option>
+                            <option value="R&D" {% if form_data.department == "R&D" %}selected{% endif %}>R&D</option>
+                            <option value="HR" {% if form_data.department == "HR" %}selected{% endif %}>HR</option>
+                            <option value="Finance" {% if form_data.department == "Finance" %}selected{% endif %}>Finance</option>
+                            <option value="Marketing" {% if form_data.department == "Marketing" %}selected{% endif %}>Marketing</option>
+                            <option value="Operations" {% if form_data.department == "Operations" %}selected{% endif %}>Operations</option>
+                            <option value="Legal" {% if form_data.department == "Legal" %}selected{% endif %}>Legal</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Gaji Bulanan</label>
+                        <input type="number" name="monthly_salary" value="{{ form_data.monthly_salary }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Lama di Perusahaan (Thn)</label>
+                        <input type="number" name="years_at_company" value="{{ form_data.years_at_company }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Lama di Posisi Saat Ini</label>
+                        <input type="number" name="years_in_current_role" value="{{ form_data.years_in_current_role }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Sering Lembur?</label>
+                        <select name="overtime" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="No" {% if form_data.overtime == "No" %}selected{% endif %}>Tidak (No)</option>
+                            <option value="Yes" {% if form_data.overtime == "Yes" %}selected{% endif %}>Ya (Yes)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Peran Kerja (Role)</label>
-                        <input type="text" name="job_role" value="Role_1" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Jumlah Proyek (Thn Lalu)</label>
+                        <input type="number" name="num_projects_last_year" value="{{ form_data.num_projects_last_year }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Gaji Bulanan</label>
-                        <input type="number" name="monthly_salary" value="50000" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Jam Pelatihan (Thn Lalu)</label>
+                        <input type="number" name="training_hours_last_year" value="{{ form_data.training_hours_last_year }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Lama di Perusahaan (Thn)</label>
-                        <input type="number" name="years_at_company" value="2" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Jumlah Promosi</label>
+                        <input type="number" name="num_promotions" value="{{ form_data.num_promotions }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Lama di Posisi Saat Ini</label>
-                        <input type="number" name="years_in_current_role" value="1" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Sering Lembur?</label>
-                        <select name="overtime" class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="No" selected>Tidak (No)</option>
-                            <option value="Yes">Ya (Yes)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jumlah Proyek (Thn Lalu)</label>
-                        <input type="number" name="num_projects_last_year" value="3" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jam Pelatihan (Thn Lalu)</label>
-                        <input type="number" name="training_hours_last_year" value="20" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Jumlah Promosi</label>
-                        <input type="number" name="num_promotions" value="0" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Thn Sejak Promosi Terakhir</label>
-                        <input type="number" name="last_promotion_years_ago" value="1" min="0" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2.5 outline-none transition">
+                        <label class="block text-sm font-medium text-earth-500 mb-1">Thn Sejak Promosi Terakhir</label>
+                        <input type="number" name="last_promotion_years_ago" value="{{ form_data.last_promotion_years_ago }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 3: Tingkat Kepuasan & Kinerja -->
             <div>
-                <h3 class="text-sm font-bold text-indigo-600 uppercase tracking-wider mb-4 border-l-4 border-indigo-500 pl-2">Tingkat Kepuasan & Kinerja</h3>
+                <h3 class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">Tingkat Kepuasan & Kinerja</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
-                            <span>Skor Kinerja</span> <span class="text-xs text-slate-400">(1-5)</span>
+                        <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
+                            <span>Skor Kinerja</span> <span class="text-xs text-accent-700">(1-5)</span>
                         </label>
-                        <input type="range" name="performance_score" min="1" max="5" step="0.1" value="3.0" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2">
-                        <output class="block text-center text-sm font-bold text-slate-600 mt-1">3.0</output>
+                        <input type="range" name="performance_score" min="1" max="5" step="0.1" value="{{ form_data.performance_score }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.performance_score }}</output>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
-                            <span>Kepuasan Kerja</span> <span class="text-xs text-slate-400">(1-4)</span>
+                        <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
+                            <span>Kepuasan Kerja</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="job_satisfaction" min="1" max="4" step="1" value="3" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2">
-                        <output class="block text-center text-sm font-bold text-slate-600 mt-1">3</output>
+                        <input type="range" name="job_satisfaction" min="1" max="4" step="1" value="{{ form_data.job_satisfaction }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.job_satisfaction }}</output>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
-                            <span>Lingkungan Kerja</span> <span class="text-xs text-slate-400">(1-4)</span>
+                        <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
+                            <span>Lingkungan Kerja</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="environment_satisfaction" min="1" max="4" step="1" value="3" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2">
-                        <output class="block text-center text-sm font-bold text-slate-600 mt-1">3</output>
+                        <input type="range" name="environment_satisfaction" min="1" max="4" step="1" value="{{ form_data.environment_satisfaction }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.environment_satisfaction }}</output>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
-                            <span>Hubungan Kerja</span> <span class="text-xs text-slate-400">(1-4)</span>
+                        <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
+                            <span>Hubungan Kerja</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="relationship_satisfaction" min="1" max="4" step="1" value="3" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2">
-                        <output class="block text-center text-sm font-bold text-slate-600 mt-1">3</output>
+                        <input type="range" name="relationship_satisfaction" min="1" max="4" step="1" value="{{ form_data.relationship_satisfaction }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.relationship_satisfaction }}</output>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
-                            <span>Work-Life Balance</span> <span class="text-xs text-slate-400">(1-4)</span>
+                        <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
+                            <span>Work-Life Balance</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="work_life_balance" min="1" max="4" step="1" value="3" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2">
-                        <output class="block text-center text-sm font-bold text-slate-600 mt-1">3</output>
+                        <input type="range" name="work_life_balance" min="1" max="4" step="1" value="{{ form_data.work_life_balance }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.work_life_balance }}</output>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1 flex justify-between">
-                            <span>Stock Option Level</span> <span class="text-xs text-slate-400">(0-3)</span>
+                        <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
+                            <span>Stock Option Level</span> <span class="text-xs text-accent-700">(0-3)</span>
                         </label>
-                        <input type="range" name="stock_option_level" min="0" max="3" step="1" value="0" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 mt-2">
-                        <output class="block text-center text-sm font-bold text-slate-600 mt-1">0</output>
+                        <input type="range" name="stock_option_level" min="0" max="3" step="1" value="{{ form_data.stock_option_level }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.stock_option_level }}</output>
                     </div>
                 </div>
             </div>
 
             <!-- Submit Button -->
             <div class="pt-4">
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow hover:shadow-lg transition-all flex items-center justify-center text-lg">
+                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-lg shadow hover:shadow-lg transition-all flex items-center justify-center text-lg">
                     <i class="fas fa-microchip mr-2"></i> Analisis Risiko Attrition Karyawan
                 </button>
             </div>
@@ -168,9 +165,27 @@
 
     <!-- Result Section -->
     <div class="w-full xl:w-1/3 flex flex-col gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col h-full min-h-[400px]">
-            <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center border-b border-slate-100 pb-4">
-                <i class="fas fa-clipboard-check text-indigo-500 mr-2"></i> Hasil Analisis AI
+        
+        <!-- Dataset Insight Card -->
+        <div class="bg-sand-100 rounded-xl shadow-sm border border-sand-500 p-5">
+            <h3 class="text-sm font-bold text-earth-800 mb-2 flex items-center">
+                <i class="fas fa-lightbulb text-brand-500 mr-2"></i> Insight Perilaku Model AI
+            </h3>
+            <p class="text-xs text-earth-500 leading-relaxed mb-3">
+                Prediksi AI didasarkan pada <a href="https://www.kaggle.com/datasets/carlospereavega/employee-attrition-performance" target="_blank" class="text-brand-500 hover:text-brand-700 underline font-medium">Dataset HR Kaggle</a>. AI ini mereplika pola unik dari dataset tersebut.
+            </p>
+            <div class="bg-white p-3 rounded-lg text-xs text-earth-800 space-y-2 border border-sand-200">
+                <p class="font-bold text-brand-500"><i class="fas fa-exclamation-triangle mr-1"></i> Fakta Data (Pengaruh Lembur):</p>
+                <ul class="list-disc pl-4 space-y-1 text-earth-500">
+                    <li>Jika kepuasan sangat rendah (1) + lingkungan buruk (1) + <strong>TIDAK Lembur</strong> 👉 <span class="font-bold text-emerald-600">100% Bertahan</span>.</li>
+                    <li>Jika kepuasan sangat rendah (1) + lingkungan buruk (1) + <strong>Sering Lembur</strong> 👉 <span class="font-bold text-rose-600">66% Keluar</span>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 flex flex-col h-full min-h-[400px]">
+            <h2 class="text-lg font-bold text-earth-800 mb-6 flex items-center border-b border-sand-200 pb-4">
+                <i class="fas fa-clipboard-check text-brand-500 mr-2"></i> Hasil Analisis AI
             </h2>
             
             <div class="flex-grow flex flex-col justify-center items-center text-center">
@@ -181,8 +196,8 @@
                             <div class="absolute w-32 h-32 rounded-full border-4 border-rose-100 animate-ping opacity-50"></div>
                             <i class="fas fa-exclamation-triangle text-4xl text-rose-600 z-10"></i>
                         </div>
-                        <h3 class="text-2xl font-black text-slate-800 mb-2">Risiko Keluar <span class="text-rose-600">Tinggi</span></h3>
-                        <p class="text-slate-500 text-sm mb-6">Sistem mendeteksi probabilitas pengunduran diri yang kuat berdasarkan profil ini.</p>
+                        <h3 class="text-2xl font-black text-earth-800 mb-2">Risiko Keluar <span class="text-rose-600">Tinggi</span></h3>
+                        <p class="text-earth-500 text-sm mb-6">Sistem mendeteksi probabilitas pengunduran diri yang kuat berdasarkan profil ini.</p>
                         
                         <div class="w-full bg-rose-50 border border-rose-200 rounded-lg p-4 text-left mb-6">
                             <p class="text-xs font-bold text-rose-800 uppercase tracking-wide mb-1">Rekomendasi HR</p>
@@ -197,8 +212,8 @@
                         <div class="relative w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center mb-6">
                             <i class="fas fa-shield-alt text-4xl text-emerald-600 z-10"></i>
                         </div>
-                        <h3 class="text-2xl font-black text-slate-800 mb-2">Cenderung <span class="text-emerald-600">Bertahan</span></h3>
-                        <p class="text-slate-500 text-sm mb-6">Profil karyawan ini selaras dengan demografi pekerja loyal di perusahaan.</p>
+                        <h3 class="text-2xl font-black text-earth-800 mb-2">Cenderung <span class="text-emerald-600">Bertahan</span></h3>
+                        <p class="text-earth-500 text-sm mb-6">Profil karyawan ini selaras dengan demografi pekerja loyal di perusahaan.</p>
                         
                         <div class="w-full bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-left mb-6">
                             <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide mb-1">Rekomendasi HR</p>
@@ -213,16 +228,16 @@
                         <div class="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mb-4">
                             <i class="fas fa-exclamation-circle text-3xl text-amber-600"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">Terjadi Kesalahan</h3>
+                        <h3 class="text-xl font-bold text-earth-800 mb-2">Terjadi Kesalahan</h3>
                         <pre class="text-rose-600 text-xs text-left whitespace-pre-wrap bg-rose-50 p-3 rounded-lg border border-rose-200 w-full overflow-x-auto">{{ prediction }}</pre>
                     {% endif %}
                 {% else %}
                     <!-- Placeholder state -->
-                    <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                        <i class="fas fa-robot text-3xl text-slate-400"></i>
+                    <div class="w-20 h-20 rounded-full bg-sand-200 flex items-center justify-center mb-4">
+                        <i class="fas fa-robot text-3xl text-accent-700"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-400 mb-2">Menunggu Input</h3>
-                    <p class="text-slate-400 text-sm">Silakan isi formulir di samping dan tekan tombol analisis untuk melihat hasil prediksi AI.</p>
+                    <h3 class="text-lg font-bold text-accent-700 mb-2">Menunggu Input</h3>
+                    <p class="text-accent-700 text-sm">Silakan isi formulir di samping dan tekan tombol analisis untuk melihat hasil prediksi AI.</p>
                 {% endif %}
             </div>
         </div>

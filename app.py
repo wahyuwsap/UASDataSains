@@ -58,7 +58,25 @@ def predict_view():
     if model is None:
         model = load_model()
 
+    # Default values for the form
+    form_data = {
+        'age': 30, 'gender': 'Male', 'education': 'Bachelor', 
+        'department': 'Engineering', 'monthly_salary': 50000, 
+        'years_at_company': 2, 'years_in_current_role': 1, 
+        'performance_score': 3.0, 'job_satisfaction': 3, 
+        'work_life_balance': 3, 'overtime': 'No', 
+        'distance_from_home_km': 10, 'num_projects_last_year': 3, 
+        'training_hours_last_year': 20, 'num_promotions': 0, 
+        'last_promotion_years_ago': 1, 'stock_option_level': 0, 
+        'relationship_satisfaction': 3, 'environment_satisfaction': 3
+    }
+
     if request.method == "POST":
+        # Update form_data with submitted values
+        for key in form_data.keys():
+            if key in request.form:
+                form_data[key] = request.form.get(key)
+
         if model is not None:
             # Ambil ke-21 input dari form HTML
             # Fitur: ['employee_id', 'age', 'gender', 'education', 'department', 'job_role', 'monthly_salary', 'years_at_company', 'years_in_current_role', 'performance_score', 'job_satisfaction', 'work_life_balance', 'overtime', 'distance_from_home_km', 'num_projects_last_year', 'training_hours_last_year', 'num_promotions', 'last_promotion_years_ago', 'stock_option_level', 'relationship_satisfaction', 'environment_satisfaction']
@@ -69,7 +87,7 @@ def predict_view():
                 'gender': request.form.get('gender', 'Male'),
                 'education': request.form.get('education', 'Bachelor'),
                 'department': request.form.get('department', 'Engineering'),
-                'job_role': request.form.get('job_role', 'Role_1'),
+                'job_role': 'Role_1',  # Hardcoded as requested by user
                 'monthly_salary': float(request.form.get('monthly_salary', 50000)),
                 'years_at_company': int(request.form.get('years_at_company', 2)),
                 'years_in_current_role': int(request.form.get('years_in_current_role', 1)),
@@ -109,7 +127,7 @@ def predict_view():
         else:
             prediction = f"Gagal memuat model .pkl.\nDetail Error:\n{model_error}"
 
-    return render_template("predict_view.html", prediction=prediction)
+    return render_template("predict_view.html", prediction=prediction, form_data=form_data)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8000))
