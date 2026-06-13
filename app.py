@@ -89,16 +89,21 @@ def predict_view():
 
             df_input = pd.DataFrame([data_dict])
             
-            # Prediksi
+            # Prediksi dengan custom threshold (karena dataset imbalanced)
             try:
-                pred = model.predict(df_input)[0]
-                if str(pred).strip().lower() in ['1', 'yes', 'true', 'berisiko']:
-                    # The original dataset 'attrition' column is 'Yes'/'No'
+                # Dapatkan probabilitas untuk kelas 'No' (0) dan 'Yes' (1)
+                proba = model.predict_proba(df_input)[0]
+                
+                # Asumsi index 1 adalah kelas 'Yes' (berisiko keluar)
+                # Model memiliki bias tinggi ke kelas 'No', jadi kita turunkan threshold-nya
+                # Jika probabilitas 'Yes' lebih besar dari 20%, kita anggap berisiko
+                yes_index = 1 if len(model.classes_) > 1 and model.classes_[1] == 'Yes' else -1
+                
+                if yes_index != -1 and proba[yes_index] > 0.20:
                     prediction = "Karyawan Berisiko Keluar (Yes)"
-                elif str(pred).strip().lower() in ['0', 'no', 'false', 'bertahan']:
-                    prediction = "Karyawan Kemungkinan Bertahan (No)"
                 else:
-                    prediction = f"Hasil: {pred}"
+                    prediction = "Karyawan Kemungkinan Bertahan (No)"
+                    
             except Exception as e:
                 prediction = f"Error saat prediksi: {str(e)}"
         else:
