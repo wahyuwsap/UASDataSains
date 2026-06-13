@@ -6,17 +6,25 @@ import json
 
 app = Flask(__name__)
 
+import traceback
+
+model_error = None
+
 # --- FUNGSI MEMUAT MODEL AI ---
 def load_model():
-    # Menggunakan model baru
-    MODEL_PATH = "model/attrition_prediction_model.pkl" 
+    global model_error
+    # Gunakan path absolut untuk menghindari FileNotFoundError jika cwd berbeda
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    MODEL_PATH = os.path.join(BASE_DIR, "model", "attrition_prediction_model.pkl")
     try:
+        import sklearn
+        print("Using sklearn version:", sklearn.__version__)
         model = joblib.load(MODEL_PATH)
+        model_error = None
         return model
-    except FileNotFoundError:
-        print(f"Error: Model file not found at {MODEL_PATH}")
-        return None
     except Exception as e:
+        import sklearn
+        model_error = f"scikit-learn version: {sklearn.__version__}\n{type(e).__name__}: {str(e)}\n{traceback.format_exc()}"
         print(f"Error loading model: {e}")
         return None
 
@@ -44,7 +52,11 @@ def get_dashboard_summary():
 # --- HALAMAN FORM PREDIKSI ---
 @app.route('/predict', methods=['GET', 'POST'])
 def predict_view():
+    global model, model_error
     prediction = None
+    
+    if model is None:
+        model = load_model()
 
     if request.method == "POST":
         if model is not None:
@@ -90,7 +102,7 @@ def predict_view():
             except Exception as e:
                 prediction = f"Error saat prediksi: {str(e)}"
         else:
-            prediction = "Gagal memuat model .pkl. Pastikan scikit-learn sudah versi 1.6.1"
+            prediction = f"Gagal memuat model .pkl.\nDetail Error:\n{model_error}"
 
     return render_template("predict_view.html", prediction=prediction)
 
