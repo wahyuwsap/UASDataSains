@@ -1,162 +1,507 @@
 {% extends "base.html" %}
 
-{% block title %}Prediksi AI - HR Analytics{% endblock %}
-{% block page_title %}Kalkulator Risiko Attrition Karyawan{% endblock %}
+{% block title %}Prediksi AI - HR Analytics
+<!-- Scripts for Enterprise Features -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // 1. Export PDF Logic
+    function exportPDF() {
+        const element = document.getElementById('pdf-content');
+        const opt = {
+            margin: 0.5,
+            filename: 'HR_Analytics_Report.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, ignoreElements: (el) => el.hasAttribute('data-html2canvas-ignore') },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // 2. What-If Logic
+    const simSalary = document.getElementById('sim-salary');
+    const simOvertime = document.getElementById('sim-overtime');
+
+    if (simSalary && simOvertime) {
+        const updateSimulation = async () => {
+            document.getElementById('sim-salary-val').innerText = simSalary.value;
+            document.getElementById('sim-result').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            // Build payload from current form data + simulation changes
+            const payload = {
+                age: document.querySelector('[name="age"]').value,
+                gender: document.querySelector('[name="gender"]').value,
+                education: document.querySelector('[name="education"]').value,
+                department: document.querySelector('[name="department"]').value,
+                monthly_salary: simSalary.value,
+                years_at_company: document.querySelector('[name="years_at_company"]').value,
+                years_in_current_role: document.querySelector('[name="years_in_current_role"]').value,
+                performance_score: document.querySelector('[name="performance_score"]').value,
+                job_satisfaction: document.querySelector('[name="job_satisfaction"]').value,
+                work_life_balance: document.querySelector('[name="work_life_balance"]').value,
+                overtime: simOvertime.value,
+                distance_from_home_km: document.querySelector('[name="distance_from_home_km"]').value,
+                num_projects_last_year: document.querySelector('[name="num_projects_last_year"]').value,
+                training_hours_last_year: document.querySelector('[name="training_hours_last_year"]').value,
+                num_promotions: document.querySelector('[name="num_promotions"]').value,
+                last_promotion_years_ago: document.querySelector('[name="last_promotion_years_ago"]').value,
+                stock_option_level: document.querySelector('[name="stock_option_level"]').value,
+                relationship_satisfaction: document.querySelector('[name="relationship_satisfaction"]').value,
+                environment_satisfaction: document.querySelector('[name="environment_satisfaction"]').value
+            };
+
+            try {
+                const res = await fetch('/api/simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                const resultSpan = document.getElementById('sim-result');
+                resultSpan.innerText = data.risk_prob.toFixed(1) + '%';
+                if (data.risk_prob > 20) {
+                    resultSpan.className = "text-lg font-black text-rose-600";
+                } else {
+                    resultSpan.className = "text-lg font-black text-emerald-600";
+                }
+            } catch (err) {
+                document.getElementById('sim-result').innerText = 'Error';
+                console.error(err);
+            }
+        };
+
+        document.getElementById('btn-simulate').addEventListener('click', updateSimulation);
+        
+        // Tetap update angka slider saat digeser
+        simSalary.addEventListener('input', () => {
+            document.getElementById('sim-salary-val').innerText = simSalary.value;
+        });
+    }
+
+    // 3. LocalStorage History Logic
+    function renderHistory() {
+        const historyStr = localStorage.getItem('hr_attrition_history');
+        if (!historyStr) return;
+
+        const history = JSON.parse(historyStr);
+        const tbody = document.getElementById('history-table-body');
+        if (history.length === 0) return;
+
+        tbody.innerHTML = '';
+        // Render from newest to oldest
+        history.slice().reverse().forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'bg-white border-b border-sand-200 hover:bg-sand-50';
+
+            const riskBadge = row.prediction === 'Yes'
+                ? '<span class="px-2 py-1 bg-rose-100 text-rose-800 rounded text-xs font-bold">Risiko Tinggi</span>'
+                : '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded text-xs font-bold">Bertahan</span>';
+
+            tr.innerHTML = `
+                <td class="px-6 py-3 whitespace-nowrap">${row.time}</td>
+                <td class="px-6 py-3 font-medium text-earth-800">${row.department}</td>
+                <td class="px-6 py-3">${row.perf}</td>
+                <td class="px-6 py-3">${row.salary}</td>
+                <td class="px-6 py-3">${riskBadge}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function clearHistory() {
+        if (confirm("Hapus semua riwayat prediksi?")) {
+            localStorage.removeItem('hr_attrition_history');
+            document.getElementById('history-table-body').innerHTML = '<tr class="bg-white border-b border-sand-200"><td colspan="5" class="px-6 py-4 text-center text-xs">Belum ada riwayat.</td></tr>';
+        }
+    }
+
+    {% if prediction and "Error" not in prediction %}
+    // Save current prediction to history
+    window.addEventListener('DOMContentLoaded', () => {
+        let history = JSON.parse(localStorage.getItem('hr_attrition_history') || '[]');
+
+        const newEntry = {
+            time: new Date().toLocaleString('id-ID'),
+            department: "{{ form_data.department }}",
+            perf: "{{ form_data.performance_score }}",
+            salary: "{{ form_data.monthly_salary }}",
+            prediction: "{{ 'Yes' if risk_prob > 20 else 'No' }}"
+        };
+
+        history.push(newEntry);
+        // Keep only last 10
+        if (history.length > 10) history.shift();
+
+        localStorage.setItem('hr_attrition_history', JSON.stringify(history));
+        renderHistory();
+    });
+    {% else %}
+    window.addEventListener('DOMContentLoaded', renderHistory);
+    {% endif %}
+</script>
+
+{% endblock %}
+{% block page_title %}Kalkulator Risiko Attrition Karyawan
+<!-- Scripts for Enterprise Features -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // 1. Export PDF Logic
+    function exportPDF() {
+        const element = document.getElementById('pdf-content');
+        const opt = {
+            margin: 0.5,
+            filename: 'HR_Analytics_Report.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, ignoreElements: (el) => el.hasAttribute('data-html2canvas-ignore') },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // 2. What-If Logic
+    const simSalary = document.getElementById('sim-salary');
+    const simOvertime = document.getElementById('sim-overtime');
+
+    if (simSalary && simOvertime) {
+        const updateSimulation = async () => {
+            document.getElementById('sim-salary-val').innerText = simSalary.value;
+            document.getElementById('sim-result').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            // Build payload from current form data + simulation changes
+            const payload = {
+                age: document.querySelector('[name="age"]').value,
+                gender: document.querySelector('[name="gender"]').value,
+                education: document.querySelector('[name="education"]').value,
+                department: document.querySelector('[name="department"]').value,
+                monthly_salary: simSalary.value,
+                years_at_company: document.querySelector('[name="years_at_company"]').value,
+                years_in_current_role: document.querySelector('[name="years_in_current_role"]').value,
+                performance_score: document.querySelector('[name="performance_score"]').value,
+                job_satisfaction: document.querySelector('[name="job_satisfaction"]').value,
+                work_life_balance: document.querySelector('[name="work_life_balance"]').value,
+                overtime: simOvertime.value,
+                distance_from_home_km: document.querySelector('[name="distance_from_home_km"]').value,
+                num_projects_last_year: document.querySelector('[name="num_projects_last_year"]').value,
+                training_hours_last_year: document.querySelector('[name="training_hours_last_year"]').value,
+                num_promotions: document.querySelector('[name="num_promotions"]').value,
+                last_promotion_years_ago: document.querySelector('[name="last_promotion_years_ago"]').value,
+                stock_option_level: document.querySelector('[name="stock_option_level"]').value,
+                relationship_satisfaction: document.querySelector('[name="relationship_satisfaction"]').value,
+                environment_satisfaction: document.querySelector('[name="environment_satisfaction"]').value
+            };
+
+            try {
+                const res = await fetch('/api/simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                const resultSpan = document.getElementById('sim-result');
+                resultSpan.innerText = data.risk_prob.toFixed(1) + '%';
+                if (data.risk_prob > 20) {
+                    resultSpan.className = "text-lg font-black text-rose-600";
+                } else {
+                    resultSpan.className = "text-lg font-black text-emerald-600";
+                }
+            } catch (err) {
+                document.getElementById('sim-result').innerText = 'Error';
+                console.error(err);
+            }
+        };
+
+        document.getElementById('btn-simulate').addEventListener('click', updateSimulation);
+        
+        // Tetap update angka slider saat digeser
+        simSalary.addEventListener('input', () => {
+            document.getElementById('sim-salary-val').innerText = simSalary.value;
+        });
+    }
+
+    // 3. LocalStorage History Logic
+    function renderHistory() {
+        const historyStr = localStorage.getItem('hr_attrition_history');
+        if (!historyStr) return;
+
+        const history = JSON.parse(historyStr);
+        const tbody = document.getElementById('history-table-body');
+        if (history.length === 0) return;
+
+        tbody.innerHTML = '';
+        // Render from newest to oldest
+        history.slice().reverse().forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'bg-white border-b border-sand-200 hover:bg-sand-50';
+
+            const riskBadge = row.prediction === 'Yes'
+                ? '<span class="px-2 py-1 bg-rose-100 text-rose-800 rounded text-xs font-bold">Risiko Tinggi</span>'
+                : '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded text-xs font-bold">Bertahan</span>';
+
+            tr.innerHTML = `
+                <td class="px-6 py-3 whitespace-nowrap">${row.time}</td>
+                <td class="px-6 py-3 font-medium text-earth-800">${row.department}</td>
+                <td class="px-6 py-3">${row.perf}</td>
+                <td class="px-6 py-3">${row.salary}</td>
+                <td class="px-6 py-3">${riskBadge}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function clearHistory() {
+        if (confirm("Hapus semua riwayat prediksi?")) {
+            localStorage.removeItem('hr_attrition_history');
+            document.getElementById('history-table-body').innerHTML = '<tr class="bg-white border-b border-sand-200"><td colspan="5" class="px-6 py-4 text-center text-xs">Belum ada riwayat.</td></tr>';
+        }
+    }
+
+    {% if prediction and "Error" not in prediction %}
+    // Save current prediction to history
+    window.addEventListener('DOMContentLoaded', () => {
+        let history = JSON.parse(localStorage.getItem('hr_attrition_history') || '[]');
+
+        const newEntry = {
+            time: new Date().toLocaleString('id-ID'),
+            department: "{{ form_data.department }}",
+            perf: "{{ form_data.performance_score }}",
+            salary: "{{ form_data.monthly_salary }}",
+            prediction: "{{ 'Yes' if risk_prob > 20 else 'No' }}"
+        };
+
+        history.push(newEntry);
+        // Keep only last 10
+        if (history.length > 10) history.shift();
+
+        localStorage.setItem('hr_attrition_history', JSON.stringify(history));
+        renderHistory();
+    });
+    {% else %}
+    window.addEventListener('DOMContentLoaded', renderHistory);
+    {% endif %}
+</script>
+
+{% endblock %}
 
 {% block content %}
-<div class="flex flex-col xl:flex-row gap-6 items-start">
-    
+<div class="flex flex-col xl:flex-row gap-6 items-start" id="pdf-content">
+
     <!-- Form Section -->
     <div class="w-full xl:w-2/3 bg-white rounded-xl shadow-sm border border-sand-500 p-6">
         <div class="mb-6 pb-4 border-b border-sand-200">
             <h2 class="text-xl font-bold text-earth-800 flex items-center">
                 <i class="fas fa-sliders-h text-brand-500 mr-2"></i> Parameter Profil Karyawan
             </h2>
-            <p class="text-sm text-earth-500 mt-1">Lengkapi parameter di bawah ini untuk mensimulasikan probabilitas attrition menggunakan model Random Forest.</p>
+            <p class="text-sm text-earth-500 mt-1">Lengkapi parameter di bawah ini untuk mensimulasikan probabilitas
+                attrition menggunakan model Random Forest.</p>
         </div>
 
         <form method="POST" action="/predict" class="space-y-8">
-            
+
             <!-- SECTION 1: Demografi -->
             <div>
-                <h3 class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">Data Demografi</h3>
+                <h3
+                    class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">
+                    Data Demografi</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Umur (Tahun)</label>
-                        <input type="number" name="age" value="{{ form_data.age }}" min="18" max="70" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="age" value="{{ form_data.age }}" min="18" max="70" required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Gender</label>
-                        <select name="gender" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="Male" {% if form_data.gender == "Male" %}selected{% endif %}>Laki-laki</option>
-                            <option value="Female" {% if form_data.gender == "Female" %}selected{% endif %}>Perempuan</option>
-                            <option value="Other" {% if form_data.gender == "Other" %}selected{% endif %}>Lainnya</option>
+                        <select name="gender"
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="Male" {% if form_data.gender=="Male" %}selected{% endif %}>Laki-laki</option>
+                            <option value="Female" {% if form_data.gender=="Female" %}selected{% endif %}>Perempuan
+                            </option>
+                            <option value="Other" {% if form_data.gender=="Other" %}selected{% endif %}>Lainnya</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Pendidikan</label>
-                        <select name="education" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="High School" {% if form_data.education == "High School" %}selected{% endif %}>SMA/Sederajat</option>
-                            <option value="Bachelor" {% if form_data.education == "Bachelor" %}selected{% endif %}>S1 (Bachelor)</option>
-                            <option value="Master" {% if form_data.education == "Master" %}selected{% endif %}>S2 (Master)</option>
-                            <option value="PhD" {% if form_data.education == "PhD" %}selected{% endif %}>S3 (PhD)</option>
+                        <select name="education"
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="High School" {% if form_data.education=="High School" %}selected{% endif %}>
+                                SMA/Sederajat</option>
+                            <option value="Bachelor" {% if form_data.education=="Bachelor" %}selected{% endif %}>S1
+                                (Bachelor)</option>
+                            <option value="Master" {% if form_data.education=="Master" %}selected{% endif %}>S2 (Master)
+                            </option>
+                            <option value="PhD" {% if form_data.education=="PhD" %}selected{% endif %}>S3 (PhD)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Jarak dari Rumah (Km)</label>
-                        <input type="number" name="distance_from_home_km" value="{{ form_data.distance_from_home_km }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="distance_from_home_km" value="{{ form_data.distance_from_home_km }}"
+                            min="0" required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 2: Beban Kerja & Peran -->
             <div>
-                <h3 class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">Beban Kerja & Peran</h3>
+                <h3
+                    class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">
+                    Beban Kerja & Peran</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Departemen</label>
-                        <select name="department" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="Engineering" {% if form_data.department == "Engineering" %}selected{% endif %}>Engineering</option>
-                            <option value="Sales" {% if form_data.department == "Sales" %}selected{% endif %}>Sales</option>
-                            <option value="R&D" {% if form_data.department == "R&D" %}selected{% endif %}>R&D</option>
-                            <option value="HR" {% if form_data.department == "HR" %}selected{% endif %}>HR</option>
-                            <option value="Finance" {% if form_data.department == "Finance" %}selected{% endif %}>Finance</option>
-                            <option value="Marketing" {% if form_data.department == "Marketing" %}selected{% endif %}>Marketing</option>
-                            <option value="Operations" {% if form_data.department == "Operations" %}selected{% endif %}>Operations</option>
-                            <option value="Legal" {% if form_data.department == "Legal" %}selected{% endif %}>Legal</option>
+                        <select name="department"
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="Engineering" {% if form_data.department=="Engineering" %}selected{% endif %}>
+                                Engineering</option>
+                            <option value="Sales" {% if form_data.department=="Sales" %}selected{% endif %}>Sales
+                            </option>
+                            <option value="R&D" {% if form_data.department=="R&D" %}selected{% endif %}>R&D</option>
+                            <option value="HR" {% if form_data.department=="HR" %}selected{% endif %}>HR</option>
+                            <option value="Finance" {% if form_data.department=="Finance" %}selected{% endif %}>Finance
+                            </option>
+                            <option value="Marketing" {% if form_data.department=="Marketing" %}selected{% endif %}>
+                                Marketing</option>
+                            <option value="Operations" {% if form_data.department=="Operations" %}selected{% endif %}>
+                                Operations</option>
+                            <option value="Legal" {% if form_data.department=="Legal" %}selected{% endif %}>Legal
+                            </option>
                         </select>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Gaji Bulanan</label>
-                        <input type="number" name="monthly_salary" value="{{ form_data.monthly_salary }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="monthly_salary" value="{{ form_data.monthly_salary }}" min="0"
+                            required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Lama di Perusahaan (Thn)</label>
-                        <input type="number" name="years_at_company" value="{{ form_data.years_at_company }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="years_at_company" value="{{ form_data.years_at_company }}" min="0"
+                            required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Lama di Posisi Saat Ini</label>
-                        <input type="number" name="years_in_current_role" value="{{ form_data.years_in_current_role }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="years_in_current_role" value="{{ form_data.years_in_current_role }}"
+                            min="0" required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Sering Lembur?</label>
-                        <select name="overtime" class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
-                            <option value="No" {% if form_data.overtime == "No" %}selected{% endif %}>Tidak (No)</option>
-                            <option value="Yes" {% if form_data.overtime == "Yes" %}selected{% endif %}>Ya (Yes)</option>
+                        <select name="overtime"
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition bg-white">
+                            <option value="No" {% if form_data.overtime=="No" %}selected{% endif %}>Tidak (No)</option>
+                            <option value="Yes" {% if form_data.overtime=="Yes" %}selected{% endif %}>Ya (Yes)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Jumlah Proyek (Thn Lalu)</label>
-                        <input type="number" name="num_projects_last_year" value="{{ form_data.num_projects_last_year }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="num_projects_last_year"
+                            value="{{ form_data.num_projects_last_year }}" min="0" required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Jam Pelatihan (Thn Lalu)</label>
-                        <input type="number" name="training_hours_last_year" value="{{ form_data.training_hours_last_year }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="training_hours_last_year"
+                            value="{{ form_data.training_hours_last_year }}" min="0" required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Jumlah Promosi</label>
-                        <input type="number" name="num_promotions" value="{{ form_data.num_promotions }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="num_promotions" value="{{ form_data.num_promotions }}" min="0"
+                            required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1">Thn Sejak Promosi Terakhir</label>
-                        <input type="number" name="last_promotion_years_ago" value="{{ form_data.last_promotion_years_ago }}" min="0" required class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
+                        <input type="number" name="last_promotion_years_ago"
+                            value="{{ form_data.last_promotion_years_ago }}" min="0" required
+                            class="w-full rounded-md border-sand-500 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm border p-2.5 outline-none transition">
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 3: Tingkat Kepuasan & Kinerja -->
             <div>
-                <h3 class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">Tingkat Kepuasan & Kinerja</h3>
+                <h3
+                    class="text-sm font-bold text-brand-500 uppercase tracking-wider mb-4 border-l-4 border-brand-500 pl-2">
+                    Tingkat Kepuasan & Kinerja</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
                             <span>Skor Kinerja</span> <span class="text-xs text-accent-700">(1-5)</span>
                         </label>
-                        <input type="range" name="performance_score" min="1" max="5" step="0.1" value="{{ form_data.performance_score }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
-                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.performance_score }}</output>
+                        <input type="range" name="performance_score" min="1" max="5" step="0.1"
+                            value="{{ form_data.performance_score }}"
+                            oninput="this.nextElementSibling.value = this.value"
+                            class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{
+                            form_data.performance_score }}</output>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
                             <span>Kepuasan Kerja</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="job_satisfaction" min="1" max="4" step="1" value="{{ form_data.job_satisfaction }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
-                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.job_satisfaction }}</output>
+                        <input type="range" name="job_satisfaction" min="1" max="4" step="1"
+                            value="{{ form_data.job_satisfaction }}"
+                            oninput="this.nextElementSibling.value = this.value"
+                            class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{
+                            form_data.job_satisfaction }}</output>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
                             <span>Lingkungan Kerja</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="environment_satisfaction" min="1" max="4" step="1" value="{{ form_data.environment_satisfaction }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
-                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.environment_satisfaction }}</output>
+                        <input type="range" name="environment_satisfaction" min="1" max="4" step="1"
+                            value="{{ form_data.environment_satisfaction }}"
+                            oninput="this.nextElementSibling.value = this.value"
+                            class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{
+                            form_data.environment_satisfaction }}</output>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
                             <span>Hubungan Kerja</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="relationship_satisfaction" min="1" max="4" step="1" value="{{ form_data.relationship_satisfaction }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
-                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.relationship_satisfaction }}</output>
+                        <input type="range" name="relationship_satisfaction" min="1" max="4" step="1"
+                            value="{{ form_data.relationship_satisfaction }}"
+                            oninput="this.nextElementSibling.value = this.value"
+                            class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{
+                            form_data.relationship_satisfaction }}</output>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
                             <span>Work-Life Balance</span> <span class="text-xs text-accent-700">(1-4)</span>
                         </label>
-                        <input type="range" name="work_life_balance" min="1" max="4" step="1" value="{{ form_data.work_life_balance }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
-                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.work_life_balance }}</output>
+                        <input type="range" name="work_life_balance" min="1" max="4" step="1"
+                            value="{{ form_data.work_life_balance }}"
+                            oninput="this.nextElementSibling.value = this.value"
+                            class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{
+                            form_data.work_life_balance }}</output>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-earth-500 mb-1 flex justify-between">
                             <span>Stock Option Level</span> <span class="text-xs text-accent-700">(0-3)</span>
                         </label>
-                        <input type="range" name="stock_option_level" min="0" max="3" step="1" value="{{ form_data.stock_option_level }}" oninput="this.nextElementSibling.value = this.value" class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
-                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{ form_data.stock_option_level }}</output>
+                        <input type="range" name="stock_option_level" min="0" max="3" step="1"
+                            value="{{ form_data.stock_option_level }}"
+                            oninput="this.nextElementSibling.value = this.value"
+                            class="w-full h-2 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        <output class="block text-center text-sm font-bold text-earth-500 mt-1">{{
+                            form_data.stock_option_level }}</output>
                     </div>
                 </div>
             </div>
 
             <!-- Submit Button -->
             <div class="pt-4">
-                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-lg shadow hover:shadow-lg transition-all flex items-center justify-center text-lg">
+                <button type="submit" data-html2canvas-ignore="true"
+                    class="w-full bg-brand-500 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-lg shadow hover:shadow-lg transition-all flex items-center justify-center text-lg">
                     <i class="fas fa-microchip mr-2"></i> Analisis Risiko Attrition Karyawan
                 </button>
             </div>
@@ -165,83 +510,345 @@
 
     <!-- Result Section -->
     <div class="w-full xl:w-1/3 flex flex-col gap-6">
-        
+
         <!-- Dataset Insight Card -->
         <div class="bg-sand-100 rounded-xl shadow-sm border border-sand-500 p-5">
             <h3 class="text-sm font-bold text-earth-800 mb-2 flex items-center">
                 <i class="fas fa-lightbulb text-brand-500 mr-2"></i> Insight Perilaku Model AI
             </h3>
             <p class="text-xs text-earth-500 leading-relaxed mb-3">
-                Prediksi AI didasarkan pada <a href="https://www.kaggle.com/datasets/carlospereavega/employee-attrition-performance" target="_blank" class="text-brand-500 hover:text-brand-700 underline font-medium">Dataset HR Kaggle</a>. AI ini mereplika pola unik dari dataset tersebut.
+                Prediksi AI didasarkan pada <a
+                    href="https://www.kaggle.com/datasets/carlospereavega/employee-attrition-performance"
+                    target="_blank" class="text-brand-500 hover:text-brand-700 underline font-medium">Dataset HR
+                    Kaggle</a>. AI ini mereplika pola unik dari dataset tersebut.
             </p>
             <div class="bg-white p-3 rounded-lg text-xs text-earth-800 space-y-2 border border-sand-200">
-                <p class="font-bold text-brand-500"><i class="fas fa-exclamation-triangle mr-1"></i> Fakta Data (Pengaruh Lembur):</p>
+                <p class="font-bold text-brand-500"><i class="fas fa-exclamation-triangle mr-1"></i> Fakta Data
+                    (Pengaruh Lembur):</p>
                 <ul class="list-disc pl-4 space-y-1 text-earth-500">
-                    <li>Jika kepuasan sangat rendah (1) + lingkungan buruk (1) + <strong>TIDAK Lembur</strong> 👉 <span class="font-bold text-emerald-600">100% Bertahan</span>.</li>
-                    <li>Jika kepuasan sangat rendah (1) + lingkungan buruk (1) + <strong>Sering Lembur</strong> 👉 <span class="font-bold text-rose-600">66% Keluar</span>.</li>
+                    <li>Jika kepuasan sangat rendah (1) + lingkungan buruk (1) + <strong>TIDAK Lembur</strong> 👉 <span
+                            class="font-bold text-emerald-600">100% Bertahan</span>.</li>
+                    <li>Jika kepuasan sangat rendah (1) + lingkungan buruk (1) + <strong>Sering Lembur</strong> 👉 <span
+                            class="font-bold text-rose-600">66% Keluar</span>.</li>
                 </ul>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 flex flex-col h-full min-h-[400px]">
-            <h2 class="text-lg font-bold text-earth-800 mb-6 flex items-center border-b border-sand-200 pb-4">
-                <i class="fas fa-clipboard-check text-brand-500 mr-2"></i> Hasil Analisis AI
-            </h2>
-            
-            <div class="flex-grow flex flex-col justify-center items-center text-center">
+        <div id="result-card"
+            class="bg-white rounded-xl shadow-sm border border-sand-500 p-6 flex flex-col h-full min-h-[400px] relative">
+
+            <div class="flex justify-between items-center border-b border-sand-200 pb-4 mb-6">
+                <h2 class="text-lg font-bold text-earth-800 flex items-center">
+                    <i class="fas fa-clipboard-check text-brand-500 mr-2"></i> Hasil Analisis AI
+                </h2>
                 {% if prediction %}
-                    {% if "Yes" in prediction %}
-                        <!-- Attrition Risk: YES -->
-                        <div class="relative w-24 h-24 rounded-full bg-rose-100 flex items-center justify-center mb-6 animate-pulse">
-                            <div class="absolute w-32 h-32 rounded-full border-4 border-rose-100 animate-ping opacity-50"></div>
-                            <i class="fas fa-exclamation-triangle text-4xl text-rose-600 z-10"></i>
-                        </div>
-                        <h3 class="text-2xl font-black text-earth-800 mb-2">Risiko Keluar <span class="text-rose-600">Tinggi</span></h3>
-                        <p class="text-earth-500 text-sm mb-6">Sistem mendeteksi probabilitas pengunduran diri yang kuat berdasarkan profil ini.</p>
-                        
-                        <div class="w-full bg-rose-50 border border-rose-200 rounded-lg p-4 text-left mb-6">
-                            <p class="text-xs font-bold text-rose-800 uppercase tracking-wide mb-1">Rekomendasi HR</p>
-                            <ul class="list-disc pl-4 text-sm text-rose-700 space-y-1">
-                                <li>Segera jadwalkan 1-on-1 meeting.</li>
-                                <li>Tinjau ulang beban kerja & insentif.</li>
-                                <li>Cek kepuasan terhadap atasan langsung.</li>
-                            </ul>
-                        </div>
-                    {% elif "No" in prediction %}
-                        <!-- Attrition Risk: NO -->
-                        <div class="relative w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center mb-6">
-                            <i class="fas fa-shield-alt text-4xl text-emerald-600 z-10"></i>
-                        </div>
-                        <h3 class="text-2xl font-black text-earth-800 mb-2">Cenderung <span class="text-emerald-600">Bertahan</span></h3>
-                        <p class="text-earth-500 text-sm mb-6">Profil karyawan ini selaras dengan demografi pekerja loyal di perusahaan.</p>
-                        
-                        <div class="w-full bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-left mb-6">
-                            <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide mb-1">Rekomendasi HR</p>
-                            <ul class="list-disc pl-4 text-sm text-emerald-700 space-y-1">
-                                <li>Apresiasi kinerja secara berkala.</li>
-                                <li>Pertimbangkan untuk program upskilling.</li>
-                                <li>Pantau tingkat Work-Life Balance secara rutin.</li>
-                            </ul>
-                        </div>
-                    {% else %}
-                        <!-- Error -->
-                        <div class="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mb-4">
-                            <i class="fas fa-exclamation-circle text-3xl text-amber-600"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-earth-800 mb-2">Terjadi Kesalahan</h3>
-                        <pre class="text-rose-600 text-xs text-left whitespace-pre-wrap bg-rose-50 p-3 rounded-lg border border-rose-200 w-full overflow-x-auto">{{ prediction }}</pre>
-                    {% endif %}
-                {% else %}
-                    <!-- Placeholder state -->
-                    <div class="w-20 h-20 rounded-full bg-sand-200 flex items-center justify-center mb-4">
-                        <i class="fas fa-robot text-3xl text-accent-700"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-accent-700 mb-2">Menunggu Input</h3>
-                    <p class="text-accent-700 text-sm">Silakan isi formulir di samping dan tekan tombol analisis untuk melihat hasil prediksi AI.</p>
+                <button type="button" onclick="exportPDF()" data-html2canvas-ignore="true"
+                    class="text-xs bg-sand-100 hover:bg-sand-200 text-earth-800 py-1.5 px-3 rounded border border-sand-500 transition-colors flex items-center">
+                    <i class="fas fa-file-pdf text-rose-500 mr-1"></i> Export PDF
+                </button>
                 {% endif %}
             </div>
+
+
+            <div class="flex-grow flex flex-col justify-center items-center text-center">
+                {% if prediction %}
+                {% if "Yes" in prediction %}
+                <!-- Attrition Risk: YES -->
+                <div
+                    class="relative w-24 h-24 rounded-full bg-rose-100 flex items-center justify-center mb-6 animate-pulse">
+                    <div class="absolute w-32 h-32 rounded-full border-4 border-rose-100 animate-ping opacity-50"></div>
+                    <i class="fas fa-exclamation-triangle text-4xl text-rose-600 z-10"></i>
+                </div>
+                <h3 class="text-2xl font-black text-earth-800 mb-2">Risiko Keluar <span
+                        class="text-rose-600">Tinggi</span></h3>
+                <p class="text-earth-500 text-sm mb-6">Sistem mendeteksi probabilitas pengunduran diri yang kuat
+                    berdasarkan profil ini.</p>
+
+
+                {% if explain_reasons %}
+                <div class="w-full bg-sand-100 border border-sand-500 rounded-lg p-4 text-left mb-6">
+                    <p class="text-xs font-bold text-earth-800 uppercase tracking-wide mb-1"><i
+                            class="fas fa-brain text-brand-500 mr-1"></i> Analisis Faktor Spesifik</p>
+                    <ul class="list-disc pl-4 text-sm text-earth-500 space-y-1">
+                        {% for reason in explain_reasons %}
+                        <li>{{ reason }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="w-full bg-rose-50 border border-rose-200 rounded-lg p-4 text-left mb-6">
+                    <p class="text-xs font-bold text-rose-800 uppercase tracking-wide mb-1">Rekomendasi HR</p>
+                    <ul class="list-disc pl-4 text-sm text-rose-700 space-y-1">
+                        <li>Segera jadwalkan 1-on-1 meeting.</li>
+                        <li>Tinjau ulang beban kerja & insentif.</li>
+                        <li>Cek kepuasan terhadap atasan langsung.</li>
+                    </ul>
+                </div>
+                {% elif "No" in prediction %}
+                <!-- Attrition Risk: NO -->
+                <div class="relative w-24 h-24 rounded-full bg-emerald-100 flex items-center justify-center mb-6">
+                    <i class="fas fa-shield-alt text-4xl text-emerald-600 z-10"></i>
+                </div>
+                <h3 class="text-2xl font-black text-earth-800 mb-2">Cenderung <span
+                        class="text-emerald-600">Bertahan</span></h3>
+                <p class="text-earth-500 text-sm mb-6">Profil karyawan ini selaras dengan demografi pekerja loyal di
+                    perusahaan.</p>
+
+
+                {% if explain_reasons %}
+                <div class="w-full bg-sand-100 border border-sand-500 rounded-lg p-4 text-left mb-6">
+                    <p class="text-xs font-bold text-earth-800 uppercase tracking-wide mb-1"><i
+                            class="fas fa-brain text-brand-500 mr-1"></i> Analisis Faktor Spesifik</p>
+                    <ul class="list-disc pl-4 text-sm text-earth-500 space-y-1">
+                        {% for reason in explain_reasons %}
+                        <li>{{ reason }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="w-full bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-left mb-6">
+                    <p class="text-xs font-bold text-emerald-800 uppercase tracking-wide mb-1">Rekomendasi HR</p>
+                    <ul class="list-disc pl-4 text-sm text-emerald-700 space-y-1">
+                        <li>Apresiasi kinerja secara berkala.</li>
+                        <li>Pertimbangkan untuk program upskilling.</li>
+                        <li>Pantau tingkat Work-Life Balance secara rutin.</li>
+                    </ul>
+                </div>
+                {% else %}
+                <!-- Error -->
+                <div class="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mb-4">
+                    <i class="fas fa-exclamation-circle text-3xl text-amber-600"></i>
+                </div>
+                <h3 class="text-xl font-bold text-earth-800 mb-2">Terjadi Kesalahan</h3>
+                <pre
+                    class="text-rose-600 text-xs text-left whitespace-pre-wrap bg-rose-50 p-3 rounded-lg border border-rose-200 w-full overflow-x-auto">{{ prediction }}</pre>
+                {% endif %}
+                {% else %}
+                <!-- Placeholder state -->
+                <div class="w-20 h-20 rounded-full bg-sand-200 flex items-center justify-center mb-4">
+                    <i class="fas fa-robot text-3xl text-accent-700"></i>
+                </div>
+                <h3 class="text-lg font-bold text-accent-700 mb-2">Menunggu Input</h3>
+                <p class="text-accent-700 text-sm">Silakan isi formulir di samping dan tekan tombol analisis untuk
+                    melihat hasil prediksi AI.</p>
+                {% endif %}
+            </div>
+
+            {% if prediction and "Error" not in prediction %}
+            <!-- What-If Simulation -->
+            <div class="mt-6 pt-6 border-t border-sand-200 w-full text-left" data-html2canvas-ignore="true">
+                <h3 class="text-sm font-bold text-earth-800 mb-3 flex items-center"><i
+                        class="fas fa-magic text-accent-700 mr-2"></i> What-If Simulation</h3>
+                <p class="text-xs text-earth-500 mb-4">Simulasikan tindakan HR untuk melihat perubahan risiko secara
+                    real-time.</p>
+
+                <div class="space-y-4 bg-sand-100 p-4 rounded-lg border border-sand-500">
+                    <div>
+                        <label class="block text-xs font-bold text-earth-500 mb-1 flex justify-between">
+                            <span>Naikkan Gaji (Simulasi)</span>
+                            <span id="sim-salary-val" class="text-brand-500">{{ form_data.monthly_salary }}</span>
+                        </label>
+                        <input type="range" id="sim-salary" min="10000" max="200000" step="1000"
+                            value="{{ form_data.monthly_salary }}"
+                            oninput="document.getElementById('sim-salary-val').innerText = this.value"
+                            class="w-full h-1.5 bg-sand-500 rounded-lg appearance-none cursor-pointer accent-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-earth-500 mb-1">Hapus Kewajiban Lembur?</label>
+                        <select id="sim-overtime"
+                            class="w-full text-xs rounded border-sand-500 shadow-sm p-2 outline-none">
+                            <option value="Yes" {% if form_data.overtime=="Yes" %}selected{% endif %}>Tetap Lembur (Yes)
+                            </option>
+                            <option value="No" {% if form_data.overtime=="No" %}selected{% endif %}>Hapus Lembur (No)
+                            </option>
+                        </select>
+                    </div>
+                    <div class="pt-2 border-t border-sand-200">
+                        <button type="button" id="btn-simulate" onclick="updateSimulation()" data-html2canvas-ignore="true" class="w-full mb-3 bg-earth-800 hover:bg-earth-900 text-white text-xs font-bold py-2 px-4 rounded transition-colors flex items-center justify-center">
+                            <i class="fas fa-sync-alt mr-2"></i> Update Simulasi Risiko
+                        </button>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-earth-800">Probabilitas Risiko Baru:</span>
+                            <span id="sim-result"
+                                class="text-lg font-black {% if risk_prob > 20 %}text-rose-600{% else %}text-emerald-600{% endif %}">{{
+                                "%.1f"|format(risk_prob) }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
         </div>
     </div>
 
 </div>
+
+<!-- History Section -->
+<div class="mt-8 w-full bg-white rounded-xl shadow-sm border border-sand-500 p-6">
+    <h2 class="text-lg font-bold text-earth-800 mb-4 flex items-center border-b border-sand-200 pb-3">
+        <i class="fas fa-history text-brand-500 mr-2"></i> Riwayat Prediksi Lokal
+    </h2>
+    <p class="text-xs text-earth-500 mb-4">Riwayat ini disimpan aman di browser Anda dan tidak akan hilang meskipun
+        server direstart.</p>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-earth-500">
+            <thead class="text-xs text-earth-800 uppercase bg-sand-100 border-b border-sand-500">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Waktu</th>
+                    <th scope="col" class="px-6 py-3">Departemen / Role</th>
+                    <th scope="col" class="px-6 py-3">Skor Kinerja</th>
+                    <th scope="col" class="px-6 py-3">Gaji</th>
+                    <th scope="col" class="px-6 py-3">Risiko Attrition</th>
+                </tr>
+            </thead>
+            <tbody id="history-table-body">
+                <tr class="bg-white border-b border-sand-200">
+                    <td colspan="5" class="px-6 py-4 text-center text-xs">Belum ada riwayat.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4 text-right">
+        <button onclick="clearHistory()" class="text-xs text-rose-500 hover:text-rose-700 underline"><i
+                class="fas fa-trash-alt mr-1"></i> Hapus Riwayat</button>
+    </div>
+</div>
+
+
+<!-- Scripts for Enterprise Features -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // 1. Export PDF Logic
+    function exportPDF() {
+        const element = document.getElementById('pdf-content');
+        const opt = {
+            margin: 0.5,
+            filename: 'HR_Analytics_Report.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, ignoreElements: (el) => el.hasAttribute('data-html2canvas-ignore') },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // 2. What-If Logic
+    async function updateSimulation() {
+        const simSalary = document.getElementById('sim-salary');
+        const simOvertime = document.getElementById('sim-overtime');
+        
+        if (!simSalary || !simOvertime) return;
+        
+        document.getElementById('sim-result').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        try {
+            // Build payload from current form data + simulation changes
+            const payload = {
+                age: document.querySelector('[name="age"]').value,
+                gender: document.querySelector('[name="gender"]').value,
+                education: document.querySelector('[name="education"]').value,
+                department: document.querySelector('[name="department"]').value,
+                monthly_salary: simSalary.value,
+                years_at_company: document.querySelector('[name="years_at_company"]').value,
+                years_in_current_role: document.querySelector('[name="years_in_current_role"]').value,
+                performance_score: document.querySelector('[name="performance_score"]').value,
+                job_satisfaction: document.querySelector('[name="job_satisfaction"]').value,
+                work_life_balance: document.querySelector('[name="work_life_balance"]').value,
+                overtime: simOvertime.value,
+                distance_from_home_km: document.querySelector('[name="distance_from_home_km"]').value,
+                num_projects_last_year: document.querySelector('[name="num_projects_last_year"]').value,
+                training_hours_last_year: document.querySelector('[name="training_hours_last_year"]').value,
+                num_promotions: document.querySelector('[name="num_promotions"]').value,
+                last_promotion_years_ago: document.querySelector('[name="last_promotion_years_ago"]').value,
+                stock_option_level: document.querySelector('[name="stock_option_level"]').value,
+                relationship_satisfaction: document.querySelector('[name="relationship_satisfaction"]').value,
+                environment_satisfaction: document.querySelector('[name="environment_satisfaction"]').value
+            };
+
+            const res = await fetch('/api/simulate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            const resultSpan = document.getElementById('sim-result');
+            resultSpan.innerText = data.risk_prob.toFixed(1) + '%';
+            if (data.risk_prob > 20) {
+                resultSpan.className = "text-lg font-black text-rose-600";
+            } else {
+                resultSpan.className = "text-lg font-black text-emerald-600";
+            }
+        } catch (err) {
+            document.getElementById('sim-result').innerText = 'Error';
+            console.error(err);
+            alert("Error What-If: " + err.message);
+        }
+    }
+
+    // 3. LocalStorage History Logic
+    function renderHistory() {
+        const historyStr = localStorage.getItem('hr_attrition_history');
+        if (!historyStr) return;
+
+        const history = JSON.parse(historyStr);
+        const tbody = document.getElementById('history-table-body');
+        if (history.length === 0) return;
+
+        tbody.innerHTML = '';
+        // Render from newest to oldest
+        history.slice().reverse().forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'bg-white border-b border-sand-200 hover:bg-sand-50';
+
+            const riskBadge = row.prediction === 'Yes'
+                ? '<span class="px-2 py-1 bg-rose-100 text-rose-800 rounded text-xs font-bold">Risiko Tinggi</span>'
+                : '<span class="px-2 py-1 bg-emerald-100 text-emerald-800 rounded text-xs font-bold">Bertahan</span>';
+
+            tr.innerHTML = `
+                <td class="px-6 py-3 whitespace-nowrap">${row.time}</td>
+                <td class="px-6 py-3 font-medium text-earth-800">${row.department}</td>
+                <td class="px-6 py-3">${row.perf}</td>
+                <td class="px-6 py-3">${row.salary}</td>
+                <td class="px-6 py-3">${riskBadge}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function clearHistory() {
+        if (confirm("Hapus semua riwayat prediksi?")) {
+            localStorage.removeItem('hr_attrition_history');
+            document.getElementById('history-table-body').innerHTML = '<tr class="bg-white border-b border-sand-200"><td colspan="5" class="px-6 py-4 text-center text-xs">Belum ada riwayat.</td></tr>';
+        }
+    }
+
+    {% if prediction and "Error" not in prediction %}
+    // Save current prediction to history
+    window.addEventListener('DOMContentLoaded', () => {
+        let history = JSON.parse(localStorage.getItem('hr_attrition_history') || '[]');
+
+        const newEntry = {
+            time: new Date().toLocaleString('id-ID'),
+            department: "{{ form_data.department }}",
+            perf: "{{ form_data.performance_score }}",
+            salary: "{{ form_data.monthly_salary }}",
+            prediction: "{{ 'Yes' if risk_prob > 20 else 'No' }}"
+        };
+
+        history.push(newEntry);
+        // Keep only last 10
+        if (history.length > 10) history.shift();
+
+        localStorage.setItem('hr_attrition_history', JSON.stringify(history));
+        renderHistory();
+    });
+    {% else %}
+    window.addEventListener('DOMContentLoaded', renderHistory);
+    {% endif %}
+</script>
+
 {% endblock %}
