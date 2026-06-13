@@ -1,137 +1,379 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard & Ringkasan - HR Analytics{% endblock %}
-{% block page_title %}Dashboard Data & Ringkasan Eksekutif{% endblock %}
+{% block title %}Dashboard Ringkasan - HR Analytics{% endblock %}
+{% block page_title %}Dashboard Ringkasan Attrition{% endblock %}
 
 {% block content %}
-<div class="tabs-container" data-aos="fade-up" data-aos-duration="600">
-    <div class="tabs-header" style="margin-bottom: 20px; display: flex; gap: 10px;">
-        <button id="btn-ringkasan" class="btn btn-primary" onclick="showTab('ringkasan')"><i
-                class="fas fa-chart-pie"></i> Ringkasan Eksekutif</button>
-        <button id="btn-looker" class="btn btn-outline" onclick="showTab('looker')"><i class="fas fa-chart-bar"></i>
-            Data dari Google Looker</button>
-    </div>
+<!-- TAB BUTTONS -->
+<div class="flex gap-3 mb-6">
+    <button id="btn-ringkasan" onclick="showTab('ringkasan')"
+        class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm font-medium transition-colors">
+        <i class="fas fa-chart-pie mr-2"></i> Ringkasan Attrition
+    </button>
+    <button id="btn-looker" onclick="showTab('looker')"
+        class="flex items-center px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium shadow-sm">
+        <i class="fas fa-chart-bar mr-2"></i> Data Google Looker
+    </button>
+</div>
 
-    <!-- TAB 1: Ringkasan Eksekutif -->
-    <div id="tab-ringkasan" class="tab-content">
-        <!-- Content from home.html -->
-        <div class="grid-3 mb-30">
-            <div class="info-box">
-                <div class="info-box-icon danger"><i class="fas fa-arrow-trend-up"></i></div>
-                <div class="info-box-content">
-                    <h3 id="val-attrition">> 10%</h3>
-                    <p>Tingkat Attrition</p>
-                </div>
+<!-- TAB 1: RINGKASAN ATTRITION -->
+<div id="tab-ringkasan" class="space-y-6 block">
+    <!-- KPI Top Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Card 1 -->
+        <div
+            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+            <div>
+                <p class="text-sm font-medium text-slate-500 mb-1">Total Karyawan</p>
+                <h3 class="text-2xl font-bold text-slate-800" id="kpi-total">-</h3>
             </div>
-
-            <div class="info-box">
-                <div class="info-box-icon warning"><i class="fas fa-users-slash"></i></div>
-                <div class="info-box-content">
-                    <h3 id="val-keluar">-</h3>
-                    <p>Karyawan Keluar</p>
-                </div>
-            </div>
-
-            <div class="info-box">
-                <div class="info-box-icon primary"><i class="fas fa-users"></i></div>
-                <div class="info-box-content">
-                    <h3 id="val-total">-</h3>
-                    <p>Total Karyawan</p>
-                </div>
+            <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center">
+                <i class="fas fa-users text-indigo-600 text-xl"></i>
             </div>
         </div>
 
-        <div class="grid-2">
-            <!-- Kolom Latar Belakang -->
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-file-alt"></i> Latar Belakang Masalah</h2>
-                </div>
-                <div class="text-content text-muted" style="font-size: 14px;">
-                    <p><strong>Perusahaan Jaya Maju</strong> saat ini sedang menghadapi persoalan struktural berupa
-                        <span class="text-danger">tingginya tingkat pengunduran diri karyawan.</span> Angka pergantian
-                        yang tinggi ini telah secara nyata mendisrupsi operasional sehari-hari dan menurunkan tingkat
-                        efisiensi alur kerja tim.</p>
-                    <p>Banyaknya karyawan yang keluar memicu rentetan dampak negatif:</p>
-                    <ul style="margin-left: 20px; margin-bottom: 20px; line-height: 1.8;">
-                        <li>Meningkatnya biaya rekrutmen.</li>
-                        <li>Penurunan produktivitas karena kurva pembelajaran karyawan baru.</li>
-                        <li>Hilangnya institutional knowledge yang berharga.</li>
-                    </ul>
+        <!-- Card 2 -->
+        <div
+            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+            <div>
+                <p class="text-sm font-medium text-slate-500 mb-1">Karyawan Keluar</p>
+                <h3 class="text-2xl font-bold text-slate-800" id="kpi-keluar">-</h3>
+            </div>
+            <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center">
+                <i class="fas fa-user-minus text-rose-500 text-xl"></i>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div
+            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow relative overflow-hidden">
+            <div class="z-10 relative">
+                <p class="text-sm font-medium text-slate-500 mb-1">Attrition Rate</p>
+                <div class="flex items-end gap-3">
+                    <h3 class="text-2xl font-bold text-slate-800" id="kpi-rate">-</h3>
+                    <span id="badge-rate"
+                        class="hidden px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-700 border border-rose-200 mb-1">Kritis</span>
                 </div>
             </div>
+            <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center z-10 relative">
+                <i class="fas fa-chart-line text-amber-500 text-xl"></i>
+            </div>
+        </div>
 
-            <!-- Kolom Solusi -->
-            <div class="card">
-                <div class="card-header">
-                    <h2><i class="fas fa-project-diagram"></i> Arsitektur Solusi AI</h2>
-                    <p id="val-fokus">Platform ini memadukan visualisasi BI dengan Machine Learning.</p>
+        <!-- Card 4 -->
+        <div
+            class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+            <div>
+                <p class="text-sm font-medium text-slate-500 mb-1">Status Sistem</p>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="relative flex h-3 w-3">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-emerald-600 font-semibold text-sm">Active</span>
                 </div>
-                <div class="text-content text-muted" style="font-size: 14px;">
-                    <p>Status Sistem: <strong id="val-status" class="text-primary">-</strong></p>
-                    <p>Dashboard Looker Studio mendedahkan karakteristik demografis, tren, serta metrik kinerja populasi
-                        karyawan.</p>
-                    <p>Model Machine Learning (attrition_prediction_model) dibangun untuk menganalisis risiko pergantian
-                        individu dengan mengevaluasi fitur-fitur yang ada di dataset terbaru.</p>
-                </div>
+            </div>
+            <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
+                <i class="fas fa-server text-emerald-500 text-xl"></i>
             </div>
         </div>
     </div>
 
-    <!-- TAB 2: Google Looker -->
-    <div id="tab-looker" class="tab-content" style="display: none;">
-        <div class="card">
-            <div class="card-header"
-                style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; padding-bottom: 0; margin-bottom: 20px;">
-                <div>
-                    <h2 style="font-size: 20px;"><i class="fas fa-chart-bar"></i> Eksplorasi Data Studio</h2>
-                    <p style="margin-top: 5px;">Gunakan kontrol filter yang tersedia di dalam dashboard untuk deep-dive
-                        tren demografis.</p>
-                </div>
-                <a href="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
-                    target="_blank" class="btn btn-primary"
-                    style="padding: 10px 20px; font-size: 14px; box-shadow: var(--shadow-md);">
-                    <i class="fas fa-external-link-alt"></i> Buka Layar Penuh
-                </a>
+    <!-- Strategic Context Panel -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Latar Belakang -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                <i class="fas fa-file-alt text-indigo-500 mr-2"></i> Latar Belakang & Fokus
+            </h2>
+            <p id="ctx-latar" class="text-slate-600 text-sm leading-relaxed mb-4">-</p>
+            <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+                <p class="text-sm text-indigo-800 font-medium flex items-start">
+                    <i class="fas fa-lightbulb text-amber-500 mt-1 mr-2 text-lg"></i>
+                    <span id="ctx-fokus">-</span>
+                </p>
             </div>
+        </div>
 
+        <!-- Arsitektur AI -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                <i class="fas fa-project-diagram text-indigo-500 mr-2"></i> Arsitektur Solusi AI
+            </h2>
             <div
-                style="padding: 5px; background: var(--bg-color); border-radius: calc(var(--radius) - 2px); border: 1px solid var(--border-color);">
-                <iframe class="dashboard-iframe"
-                    src="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
-                    allowfullscreen
-                    sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+                class="space-y-4 relative before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
+                <!-- Item 1 -->
+                <div class="relative flex items-start">
+                    <div
+                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        1</div>
+                    <div class="ml-4 flex-1">
+                        <h4 class="text-sm font-bold text-slate-800">Input Layer</h4>
+                        <p class="text-xs text-slate-500 mt-1" id="ai-input">-</p>
+                    </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="relative flex items-start">
+                    <div
+                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        2</div>
+                    <div class="ml-4 flex-1">
+                        <h4 class="text-sm font-bold text-slate-800">Preprocessing Layer</h4>
+                        <p class="text-xs text-slate-500 mt-1" id="ai-pre">-</p>
+                    </div>
+                </div>
+                <!-- Item 3 -->
+                <div class="relative flex items-start">
+                    <div
+                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        3</div>
+                    <div class="ml-4 flex-1">
+                        <h4 class="text-sm font-bold text-slate-800">Modeling Layer</h4>
+                        <p class="text-xs text-slate-500 mt-1" id="ai-model">-</p>
+                    </div>
+                </div>
+                <!-- Item 4 -->
+                <div class="relative flex items-start">
+                    <div
+                        class="bg-white w-8 h-8 rounded-full border-2 border-indigo-500 flex items-center justify-center text-indigo-600 text-xs font-bold shrink-0 z-10 shadow-sm">
+                        4</div>
+                    <div class="ml-4 flex-1">
+                        <h4 class="text-sm font-bold text-slate-800">Output Layer</h4>
+                        <p class="text-xs text-slate-500 mt-1" id="ai-output">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Chart 1: Bar -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-2">
+            <h2 class="text-base font-bold text-slate-800 mb-4">Distribusi Attrition Berdasarkan Departemen</h2>
+            <div class="h-64 w-full relative">
+                <canvas id="chartDept"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Donut -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 class="text-base font-bold text-slate-800 mb-4">Rasio Attrition: Pengaruh Lembur</h2>
+            <div class="h-64 w-full relative flex justify-center">
+                <canvas id="chartOvertime"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 3: Stacked Bar / Line -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 lg:col-span-3">
+            <h2 class="text-base font-bold text-slate-800 mb-4">Tren Karyawan Berdasarkan Kelompok Umur</h2>
+            <div class="h-72 w-full relative">
+                <canvas id="chartAge"></canvas>
             </div>
         </div>
     </div>
 </div>
 
+<!-- TAB 2: GOOGLE LOOKER STUDIO -->
+<div id="tab-looker" class="hidden space-y-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800"><i class="fas fa-chart-bar text-indigo-500 mr-2"></i>
+                    Eksplorasi Data Studio</h2>
+                <p class="text-sm text-slate-500 mt-1">Gunakan kontrol filter yang tersedia di dalam dashboard untuk
+                    deep-dive tren demografis.</p>
+            </div>
+            <a href="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
+                target="_blank"
+                class="px-4 py-2 bg-indigo-50 text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200 text-sm">
+                <i class="fas fa-external-link-alt mr-2"></i> Buka Layar Penuh
+            </a>
+        </div>
+        <div class="w-full bg-slate-50 rounded-lg border border-slate-200 overflow-hidden" style="height: 600px;">
+            <iframe class="w-full h-full"
+                src="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
+                allowfullscreen
+                sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- Script for Fetching Data & Rendering Charts & Tabs -->
 <script>
-    // Tab Switching Logic
-    function showTab(tabId) {
-        document.getElementById('tab-ringkasan').style.display = 'none';
-        document.getElementById('tab-looker').style.display = 'none';
+    // Tab Switching
+    function showTab(tab) {
+        const btnRingkasan = document.getElementById('btn-ringkasan');
+        const btnLooker = document.getElementById('btn-looker');
+        const tabRingkasan = document.getElementById('tab-ringkasan');
+        const tabLooker = document.getElementById('tab-looker');
 
-        document.getElementById('btn-ringkasan').className = 'btn btn-outline';
-        document.getElementById('btn-looker').className = 'btn btn-outline';
-
-        document.getElementById('tab-' + tabId).style.display = 'block';
-        document.getElementById('btn-' + tabId).className = 'btn btn-primary';
+        if (tab === 'ringkasan') {
+            // Active styles
+            btnRingkasan.className = "flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm font-medium transition-colors";
+            btnLooker.className = "flex items-center px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium shadow-sm";
+            tabRingkasan.classList.remove('hidden');
+            tabRingkasan.classList.add('block');
+            tabLooker.classList.remove('block');
+            tabLooker.classList.add('hidden');
+        } else {
+            btnLooker.className = "flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm font-medium transition-colors";
+            btnRingkasan.className = "flex items-center px-4 py-2 bg-white text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium shadow-sm";
+            tabLooker.classList.remove('hidden');
+            tabLooker.classList.add('block');
+            tabRingkasan.classList.remove('block');
+            tabRingkasan.classList.add('hidden');
+        }
     }
 
-    // Load Dashboard Summary JSON
-    fetch("/api/dashboard-summary")
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.ringkasan_utama) {
-                const r = data.ringkasan_utama;
-                document.getElementById('val-attrition').innerText = r.tingkat_attrition_persen + '%';
-                document.getElementById('val-keluar').innerText = r.karyawan_keluar;
-                document.getElementById('val-total').innerText = r.total_karyawan;
-                document.getElementById('val-status').innerText = r.status_sistem;
-                document.getElementById('val-fokus').innerText = r.fokus_solusi;
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Fetch JSON Data
+        fetch('/api/dashboard-summary')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error("Error from API:", data.error);
+                    return;
+                }
+                populateDashboard(data);
+                renderCharts(data.data_grafik);
+            })
+            .catch(err => console.error("Error fetching dashboard data:", err));
+    });
+
+    function populateDashboard(data) {
+        const r = data.ringkasan_utama;
+        const ctx = data.konteks_strategis;
+
+        // KPI
+        document.getElementById('kpi-total').textContent = r.total_karyawan.toLocaleString();
+        document.getElementById('kpi-keluar').textContent = r.karyawan_keluar.toLocaleString();
+        document.getElementById('kpi-rate').textContent = r.tingkat_attrition_persen + '%';
+
+        if (parseFloat(r.tingkat_attrition_persen) > 10) {
+            document.getElementById('badge-rate').classList.remove('hidden');
+            document.getElementById('kpi-rate').classList.add('text-rose-600');
+        }
+
+        // Context
+        document.getElementById('ctx-latar').textContent = ctx.latar_belakang_masalah;
+        document.getElementById('ctx-fokus').textContent = r.fokus_solusi;
+
+        // Architecture
+        const arc = ctx.arsitektur_solusi_ai;
+        document.getElementById('ai-input').textContent = arc.input_layer;
+        document.getElementById('ai-pre').textContent = arc.preprocessing_layer;
+        document.getElementById('ai-model').textContent = arc.modeling_layer;
+        document.getElementById('ai-output').textContent = arc.output_layer;
+    }
+
+    function renderCharts(gfx) {
+        // Shared Options
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b'; // slate-500
+
+        // 1. Bar Chart: Departemen (Bertahan vs Keluar)
+        const ctxDept = document.getElementById('chartDept').getContext('2d');
+        const deptLabels = gfx.berdasarkan_departemen.map(d => d.kategori);
+        const deptBertahan = gfx.berdasarkan_departemen.map(d => d.bertahan);
+        const deptKeluar = gfx.berdasarkan_departemen.map(d => d.keluar);
+
+        new Chart(ctxDept, {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [
+                    {
+                        label: 'Bertahan',
+                        data: deptBertahan,
+                        backgroundColor: '#818cf8', // indigo-400
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Keluar (Attrition)',
+                        data: deptKeluar,
+                        backgroundColor: '#fb7185', // rose-400
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+                },
+                plugins: {
+                    legend: { position: 'top', align: 'end' }
+                }
             }
-        })
-        .catch(err => console.log('Gagal memuat JSON', err));
+        });
+
+        // 2. Donut Chart: Overtime Attrition Ratio
+        const ctxOvertime = document.getElementById('chartOvertime').getContext('2d');
+        const otLabels = gfx.berdasarkan_lembur.map(d => `Lembur: ${d.kategori}`);
+        const otKeluar = gfx.berdasarkan_lembur.map(d => d.keluar);
+
+        new Chart(ctxOvertime, {
+            type: 'doughnut',
+            data: {
+                labels: otLabels,
+                datasets: [{
+                    data: otKeluar,
+                    backgroundColor: ['#38bdf8', '#f43f5e'], // sky-400, rose-500
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // 3. Line/Stacked Chart: Age Group
+        const ctxAge = document.getElementById('chartAge').getContext('2d');
+        const ageLabels = gfx.berdasarkan_kelompok_umur.map(d => d.kategori);
+        const ageKeluar = gfx.berdasarkan_kelompok_umur.map(d => d.keluar);
+        const ageBertahan = gfx.berdasarkan_kelompok_umur.map(d => d.bertahan);
+
+        new Chart(ctxAge, {
+            type: 'bar',
+            data: {
+                labels: ageLabels,
+                datasets: [
+                    {
+                        label: 'Keluar',
+                        data: ageKeluar,
+                        backgroundColor: '#e11d48', // rose-600
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Bertahan',
+                        data: ageBertahan,
+                        backgroundColor: '#6366f1', // indigo-500
+                        stack: 'Stack 0',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, grid: { color: '#f1f5f9' } }
+                },
+                plugins: {
+                    legend: { position: 'top', align: 'end' }
+                }
+            }
+        });
+    }
 </script>
 {% endblock %}
