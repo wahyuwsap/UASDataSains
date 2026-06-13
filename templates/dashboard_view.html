@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard & Ringkasan - HR Analytics{% endblock %}
+{% block page_title %}Dashboard Data & Ringkasan Eksekutif{% endblock %}
+
+{% block content %}
+<div class="tabs-container" data-aos="fade-up" data-aos-duration="600">
+    <div class="tabs-header" style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <button id="btn-ringkasan" class="btn btn-primary" onclick="showTab('ringkasan')"><i
+                class="fas fa-chart-pie"></i> Ringkasan Eksekutif</button>
+        <button id="btn-looker" class="btn btn-outline" onclick="showTab('looker')"><i class="fas fa-chart-bar"></i>
+            Data dari Google Looker</button>
+    </div>
+
+    <!-- TAB 1: Ringkasan Eksekutif -->
+    <div id="tab-ringkasan" class="tab-content">
+        <!-- Content from home.html -->
+        <div class="grid-3 mb-30">
+            <div class="info-box">
+                <div class="info-box-icon danger"><i class="fas fa-arrow-trend-up"></i></div>
+                <div class="info-box-content">
+                    <h3 id="val-attrition">> 10%</h3>
+                    <p>Tingkat Attrition</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-icon warning"><i class="fas fa-users-slash"></i></div>
+                <div class="info-box-content">
+                    <h3 id="val-keluar">-</h3>
+                    <p>Karyawan Keluar</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-box-icon primary"><i class="fas fa-users"></i></div>
+                <div class="info-box-content">
+                    <h3 id="val-total">-</h3>
+                    <p>Total Karyawan</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Kolom Latar Belakang -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-file-alt"></i> Latar Belakang Masalah</h2>
+                </div>
+                <div class="text-content text-muted" style="font-size: 14px;">
+                    <p><strong>Perusahaan Jaya Maju</strong> saat ini sedang menghadapi persoalan struktural berupa
+                        <span class="text-danger">tingginya tingkat pengunduran diri karyawan.</span> Angka pergantian
+                        yang tinggi ini telah secara nyata mendisrupsi operasional sehari-hari dan menurunkan tingkat
+                        efisiensi alur kerja tim.</p>
+                    <p>Banyaknya karyawan yang keluar memicu rentetan dampak negatif:</p>
+                    <ul style="margin-left: 20px; margin-bottom: 20px; line-height: 1.8;">
+                        <li>Meningkatnya biaya rekrutmen.</li>
+                        <li>Penurunan produktivitas karena kurva pembelajaran karyawan baru.</li>
+                        <li>Hilangnya institutional knowledge yang berharga.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Kolom Solusi -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-project-diagram"></i> Arsitektur Solusi AI</h2>
+                    <p id="val-fokus">Platform ini memadukan visualisasi BI dengan Machine Learning.</p>
+                </div>
+                <div class="text-content text-muted" style="font-size: 14px;">
+                    <p>Status Sistem: <strong id="val-status" class="text-primary">-</strong></p>
+                    <p>Dashboard Looker Studio mendedahkan karakteristik demografis, tren, serta metrik kinerja populasi
+                        karyawan.</p>
+                    <p>Model Machine Learning (attrition_prediction_model) dibangun untuk menganalisis risiko pergantian
+                        individu dengan mengevaluasi fitur-fitur yang ada di dataset terbaru.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: Google Looker -->
+    <div id="tab-looker" class="tab-content" style="display: none;">
+        <div class="card">
+            <div class="card-header"
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; padding-bottom: 0; margin-bottom: 20px;">
+                <div>
+                    <h2 style="font-size: 20px;"><i class="fas fa-chart-bar"></i> Eksplorasi Data Studio</h2>
+                    <p style="margin-top: 5px;">Gunakan kontrol filter yang tersedia di dalam dashboard untuk deep-dive
+                        tren demografis.</p>
+                </div>
+                <a href="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
+                    target="_blank" class="btn btn-primary"
+                    style="padding: 10px 20px; font-size: 14px; box-shadow: var(--shadow-md);">
+                    <i class="fas fa-external-link-alt"></i> Buka Layar Penuh
+                </a>
+            </div>
+
+            <div
+                style="padding: 5px; background: var(--bg-color); border-radius: calc(var(--radius) - 2px); border: 1px solid var(--border-color);">
+                <iframe class="dashboard-iframe"
+                    src="https://datastudio.google.com/embed/reporting/7278adb0-af7a-4731-913a-31cb99b1a746/page/DsCvF"
+                    allowfullscreen
+                    sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab Switching Logic
+    function showTab(tabId) {
+        document.getElementById('tab-ringkasan').style.display = 'none';
+        document.getElementById('tab-looker').style.display = 'none';
+
+        document.getElementById('btn-ringkasan').className = 'btn btn-outline';
+        document.getElementById('btn-looker').className = 'btn btn-outline';
+
+        document.getElementById('tab-' + tabId).style.display = 'block';
+        document.getElementById('btn-' + tabId).className = 'btn btn-primary';
+    }
+
+    // Load Dashboard Summary JSON
+    fetch("/api/dashboard-summary")
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.ringkasan_utama) {
+                const r = data.ringkasan_utama;
+                document.getElementById('val-attrition').innerText = r.tingkat_attrition_persen + '%';
+                document.getElementById('val-keluar').innerText = r.karyawan_keluar;
+                document.getElementById('val-total').innerText = r.total_karyawan;
+                document.getElementById('val-status').innerText = r.status_sistem;
+                document.getElementById('val-fokus').innerText = r.fokus_solusi;
+            }
+        })
+        .catch(err => console.log('Gagal memuat JSON', err));
+</script>
+{% endblock %}

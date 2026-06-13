@@ -1,0 +1,13 @@
+# Mengabaikan folder virtual environment lokal
+env/
+venv/
+
+# Mengabaikan cache python
+__pycache__/
+*.pyc
+
+# Mengabaikan file log
+*.log
+
+# Mengabaikan file sistem (khusus Mac)
+.DS_Store

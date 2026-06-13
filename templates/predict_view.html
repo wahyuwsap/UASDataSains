@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Prediksi Karyawan - HR Analytics{% endblock %}
+{% block page_title %}Kalkulator Prediksi Risiko Attrition{% endblock %}
+
+{% block content %}
+<div class="grid-2" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; align-items: stretch;">
+    
+    <div class="card" data-aos="fade-right" data-aos-delay="200" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <div class="card-header" style="margin-bottom: 25px; border-bottom: 1px solid #e9ecef; padding-bottom: 15px;">
+            <h2 style="margin: 0; font-size: 1.5rem; color: #343a40;"><i class="fas fa-edit" style="color: #6c757d; margin-right: 8px;"></i> Form Input Parameter</h2>
+            <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 0.95rem;">Masukkan 21 variabel profil karyawan untuk dianalisis oleh AI.</p>
+        </div>
+        
+        <form method="POST" action="/predict#hasil" style="max-height: 600px; overflow-y: auto; padding-right: 15px;">
+            
+            <h4 style="margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px;">Data Demografis</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">ID Karyawan</label>
+                    <input type="text" name="employee_id" class="form-control" value="EMP9999" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Umur (Tahun)</label>
+                    <input type="number" name="age" class="form-control" value="30" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Gender</label>
+                    <select name="gender" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; appearance: none; background: white;">
+                        <option value="Male">Laki-laki</option>
+                        <option value="Female">Perempuan</option>
+                        <option value="Other">Lainnya</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Pendidikan</label>
+                    <select name="education" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; appearance: none; background: white;">
+                        <option value="High School">SMA/Sederajat</option>
+                        <option value="Bachelor" selected>S1 (Bachelor)</option>
+                        <option value="Master">S2 (Master)</option>
+                        <option value="PhD">S3 (PhD)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Jarak dari Rumah (Km)</label>
+                    <input type="number" name="distance_from_home_km" class="form-control" value="10" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+            </div>
+
+            <h4 style="margin-top: 25px; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px;">Peran & Pengalaman</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Departemen</label>
+                    <select name="department" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; appearance: none; background: white;">
+                        <option value="Finance">Finance</option>
+                        <option value="HR">HR</option>
+                        <option value="Legal">Legal</option>
+                        <option value="R&D">R&D</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Engineering" selected>Engineering</option>
+                        <option value="Sales">Sales</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Peran Kerja (Role)</label>
+                    <input type="text" name="job_role" class="form-control" value="Role_1" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Gaji Bulanan</label>
+                    <input type="number" name="monthly_salary" class="form-control" value="50000" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Lama di Perusahaan (Thn)</label>
+                    <input type="number" name="years_at_company" class="form-control" value="2" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Lama di Posisi Saat Ini (Thn)</label>
+                    <input type="number" name="years_in_current_role" class="form-control" value="1" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Jumlah Proyek Tahun Lalu</label>
+                    <input type="number" name="num_projects_last_year" class="form-control" value="3" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+            </div>
+
+            <h4 style="margin-top: 25px; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px;">Kinerja & Keseimbangan</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Skor Kinerja (1-5)</label>
+                    <input type="number" step="0.1" name="performance_score" class="form-control" value="3.0" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Sering Lembur?</label>
+                    <select name="overtime" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px; appearance: none; background: white;">
+                        <option value="No" selected>Tidak (No)</option>
+                        <option value="Yes">Ya (Yes)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Kepuasan Kerja (1-4)</label>
+                    <input type="number" name="job_satisfaction" class="form-control" value="3" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Kepuasan Lingkungan (1-4)</label>
+                    <input type="number" name="environment_satisfaction" class="form-control" value="3" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Kepuasan Hubungan (1-4)</label>
+                    <input type="number" name="relationship_satisfaction" class="form-control" value="3" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Work-Life Balance (1-4)</label>
+                    <input type="number" name="work_life_balance" class="form-control" value="3" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+            </div>
+
+            <h4 style="margin-top: 25px; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid #eee; padding-bottom: 5px;">Pelatihan & Kompensasi Ekstra</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Jam Pelatihan (Tahun Lalu)</label>
+                    <input type="number" name="training_hours_last_year" class="form-control" value="20" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Jumlah Promosi</label>
+                    <input type="number" name="num_promotions" class="form-control" value="0" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Tahun Sejak Promosi Terakhir</label>
+                    <input type="number" name="last_promotion_years_ago" class="form-control" value="1" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: bold; font-size: 0.85rem; color: #495057; display: block; margin-bottom: 5px;">Level Opsi Saham (0-3)</label>
+                    <input type="number" name="stock_option_level" class="form-control" value="0" required style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 6px;">
+                </div>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 14px; background-color: #0056b3; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,86,179,0.2); margin-top: 25px; margin-bottom: 15px;">
+                <i class="fas fa-magic" style="margin-right: 8px;"></i> Jalankan Prediksi AI
+            </button>
+        </form>
+    </div>
+
+    <div id="hasil" class="card" data-aos="fade-left" data-aos-delay="400" style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+        <div class="card-header" style="margin-bottom: 20px; border-bottom: 1px solid #e9ecef; padding-bottom: 15px;">
+            <h2 style="margin: 0; font-size: 1.5rem; color: #343a40;"><i class="fas fa-chart-pie" style="color: #0056b3; margin-right: 8px;"></i> Hasil Analisis AI</h2>
+        </div>
+        
+        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+            {% if prediction %}
+                {% if "Yes" in prediction %}
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div style="width: 90px; height: 90px; background-color: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 0 0 8px #fef2f2; animation: pulseRed 2s infinite;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #dc3545;"></i>
+                        </div>
+                        <h3 style="margin: 0 0 5px 0; color: #dc3545; font-size: 1.6rem; font-weight: 800;">Risiko Turnover Tinggi</h3>
+                        <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 1rem;">Sistem mendeteksi pola potensi pengunduran diri.</p>
+                        
+                        <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 15px; border-radius: 0 8px 8px 0; width: 100%; text-align: left; margin-bottom: 20px;">
+                            <p style="margin: 0; font-size: 1.05rem; font-weight: bold; color: #343a40;">Output Model:</p>
+                            <p style="margin: 5px 0 0 0; color: #dc3545; font-weight: bold;">{{ prediction }}</p>
+                        </div>
+
+                        <div style="width: 100%; text-align: left;">
+                            <h4 style="margin: 0 0 10px 0; color: #495057; font-size: 1rem;"><i class="fas fa-lightbulb" style="color: #ffc107; margin-right: 5px;"></i> Rekomendasi Tindakan HR:</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #6c757d; line-height: 1.6; font-size: 0.95rem;">
+                                <li>Jadwalkan sesi diskusi (<i>1-on-1</i>) untuk memahami keluhan.</li>
+                                <li>Tinjau ulang beban kerja dan frekuensi lembur.</li>
+                                <li>Evaluasi program kompensasi atau berikan insentif tambahan.</li>
+                            </ul>
+                        </div>
+                    </div>
+                {% elif "No" in prediction %}
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div style="width: 90px; height: 90px; background-color: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 0 0 8px #f0fdf4;">
+                            <i class="fas fa-check-circle" style="font-size: 2.5rem; color: #28a745;"></i>
+                        </div>
+                        <h3 style="margin: 0 0 5px 0; color: #28a745; font-size: 1.6rem; font-weight: 800;">Karyawan Aman (Loyal)</h3>
+                        <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 1rem;">Tidak terdeteksi adanya indikasi pengunduran diri.</p>
+                        
+                        <div style="background-color: #f8f9fa; border-left: 4px solid #28a745; padding: 15px; border-radius: 0 8px 8px 0; width: 100%; text-align: left; margin-bottom: 20px;">
+                            <p style="margin: 0; font-size: 1.05rem; font-weight: bold; color: #343a40;">Output Model:</p>
+                            <p style="margin: 5px 0 0 0; color: #28a745; font-weight: bold;">{{ prediction }}</p>
+                        </div>
+
+                        <div style="width: 100%; text-align: left;">
+                            <h4 style="margin: 0 0 10px 0; color: #495057; font-size: 1rem;"><i class="fas fa-lightbulb" style="color: #ffc107; margin-right: 5px;"></i> Rekomendasi Tindakan HR:</h4>
+                            <ul style="margin: 0; padding-left: 20px; color: #6c757d; line-height: 1.6; font-size: 0.95rem;">
+                                <li>Profil karyawan sejalan dengan karakteristik pekerja loyal.</li>
+                                <li>Pertahankan apresiasi untuk menjaga tingkat kepuasan kerja.</li>
+                                <li>Pertimbangkan karyawan ini untuk program pengembangan karir.</li>
+                            </ul>
+                        </div>
+                    </div>
+                {% else %}
+                    <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div style="width: 90px; height: 90px; background-color: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 0 0 8px #fef2f2;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: #dc3545;"></i>
+                        </div>
+                        <h3 style="margin: 0 0 5px 0; color: #dc3545; font-size: 1.6rem; font-weight: 800;">Gagal/Error</h3>
+                        
+                        <div style="background-color: #f8f9fa; border-left: 4px solid #dc3545; padding: 15px; border-radius: 0 8px 8px 0; width: 100%; text-align: left; margin-bottom: 20px;">
+                            <p style="margin: 0; font-size: 1.05rem; font-weight: bold; color: #343a40;">Output Model:</p>
+                            <p style="margin: 5px 0 0 0; color: #dc3545; font-weight: bold;">{{ prediction }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div style="display: flex; flex-direction: column; align-items: center; text-align: center; background: #f8f9fa; padding: 40px 20px; border-radius: 12px; border: 2px dashed #dee2e6;">
+                    <i class="fas fa-robot" style="font-size: 3rem; color: #adb5bd; margin-bottom: 15px;"></i>
+                    <h3 style="margin: 0 0 5px 0; color: #495057; font-size: 1.2rem ;">Sistem Siap Digunakan</h3>
+                    <p style="margin: 0; color: #6c757d; font-size: 0.95rem;">Lengkapi data karyawan di sebelah kiri untuk melihat hasil analisis risiko <i>turnover</i>.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes pulseRed {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+</style>
+{% endblock %}

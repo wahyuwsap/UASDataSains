@@ -1,0 +1,154 @@
+{
+    "ringkasan_utama": {
+        "total_karyawan": 10000,
+        "karyawan_keluar": 1400,
+        "tingkat_attrition_persen": 14.0,
+        "status_sistem": "Aktif - Model ML Siap Menerima Prediksi",
+        "fokus_solusi": "Retensi Karyawan, Manajemen Jam Lembur, dan Optimalisasi Kepuasan Lingkungan Kerja."
+    },
+    "konteks_strategis": {
+        "latar_belakang_masalah": "Tingginya angka perputaran karyawan (attrition) berdampak langsung pada hilangnya produktivitas dan membengkaknya biaya rekrutmen. Dashboard ini dirancang untuk memetakan titik rentan dalam organisasi berdasarkan pola historis data HR.",
+        "arsitektur_solusi_ai": {
+            "input_layer": "Data demografis, kepuasan kerja, riwayat finansial, dan beban kerja karyawan dari Form Input.",
+            "preprocessing_layer": "Imputasi data hilang (SimpleImputer) dilanjutkan transformasi fitur via ColumnTransformer (StandardScaler untuk numerik & OneHotEncoder untuk kategorikal).",
+            "modeling_layer": "Random Forest Classifier (100 estimators) yang dilengkapi parameter 'class_weight=balanced' untuk menangani ketimpangan data secara optimal.",
+            "output_layer": "Prediksi biner status attrition (Yes/No) beserta nilai probabilitas akurasi real-time via REST API."
+        }
+    },
+    "data_grafik": {
+        "berdasarkan_departemen": [
+            {
+                "kategori": "Engineering",
+                "total_karyawan": 1272,
+                "bertahan": 1101,
+                "keluar": 171,
+                "persentase_attrition": 13.44
+            },
+            {
+                "kategori": "Finance",
+                "total_karyawan": 1269,
+                "bertahan": 1074,
+                "keluar": 195,
+                "persentase_attrition": 15.37
+            },
+            {
+                "kategori": "HR",
+                "total_karyawan": 1271,
+                "bertahan": 1104,
+                "keluar": 167,
+                "persentase_attrition": 13.14
+            },
+            {
+                "kategori": "Legal",
+                "total_karyawan": 1242,
+                "bertahan": 1076,
+                "keluar": 166,
+                "persentase_attrition": 13.37
+            },
+            {
+                "kategori": "Marketing",
+                "total_karyawan": 1223,
+                "bertahan": 1045,
+                "keluar": 178,
+                "persentase_attrition": 14.55
+            },
+            {
+                "kategori": "Operations",
+                "total_karyawan": 1259,
+                "bertahan": 1095,
+                "keluar": 164,
+                "persentase_attrition": 13.03
+            },
+            {
+                "kategori": "R&D",
+                "total_karyawan": 1232,
+                "bertahan": 1052,
+                "keluar": 180,
+                "persentase_attrition": 14.61
+            },
+            {
+                "kategori": "Sales",
+                "total_karyawan": 1232,
+                "bertahan": 1053,
+                "keluar": 179,
+                "persentase_attrition": 14.53
+            }
+        ],
+        "berdasarkan_lembur": [
+            {
+                "kategori": "No",
+                "total_karyawan": 7067,
+                "bertahan": 6338,
+                "keluar": 729,
+                "persentase_attrition": 10.32
+            },
+            {
+                "kategori": "Yes",
+                "total_karyawan": 2933,
+                "bertahan": 2262,
+                "keluar": 671,
+                "persentase_attrition": 22.88
+            }
+        ],
+        "berdasarkan_jenis_kelamin": [
+            {
+                "kategori": "Female",
+                "total_karyawan": 4724,
+                "bertahan": 4066,
+                "keluar": 658,
+                "persentase_attrition": 13.93
+            },
+            {
+                "kategori": "Male",
+                "total_karyawan": 4869,
+                "bertahan": 4178,
+                "keluar": 691,
+                "persentase_attrition": 14.19
+            },
+            {
+                "kategori": "Other",
+                "total_karyawan": 407,
+                "bertahan": 356,
+                "keluar": 51,
+                "persentase_attrition": 12.53
+            }
+        ],
+        "berdasarkan_kelompok_umur": [
+            {
+                "kategori": "Under 25",
+                "total_karyawan": 1125,
+                "bertahan": 914,
+                "keluar": 211,
+                "persentase_attrition": 18.76
+            },
+            {
+                "kategori": "26-35",
+                "total_karyawan": 3070,
+                "bertahan": 2647,
+                "keluar": 423,
+                "persentase_attrition": 13.78
+            },
+            {
+                "kategori": "36-45",
+                "total_karyawan": 3623,
+                "bertahan": 3123,
+                "keluar": 500,
+                "persentase_attrition": 13.8
+            },
+            {
+                "kategori": "46-55",
+                "total_karyawan": 1813,
+                "bertahan": 1589,
+                "keluar": 224,
+                "persentase_attrition": 12.36
+            },
+            {
+                "kategori": "Over 55",
+                "total_karyawan": 369,
+                "bertahan": 327,
+                "keluar": 42,
+                "persentase_attrition": 11.38
+            }
+        ]
+    }
+}

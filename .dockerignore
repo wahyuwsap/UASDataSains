@@ -1,0 +1,12 @@
+# Mengabaikan virtual environment (karena Docker punya ruang sendiri)
+env/
+venv/
+
+# Mengabaikan cache python
+__pycache__/
+*.pyc
+
+# Mengabaikan file dokumentasi dan git
+.git
+.gitignore
+README.md
